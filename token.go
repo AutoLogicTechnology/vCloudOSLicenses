@@ -43,7 +43,7 @@ func (v *VCloudSession) Login () {
     v.Accessible    = true
 }
 
-func (v *VCloudSession) Get (uri string) (body io.ReadCloser) {
+func (v *VCloudSession) Get (uri string) (body *http.Response) {
     var err error 
     var response *http.Response 
 
@@ -58,6 +58,7 @@ func (v *VCloudSession) Get (uri string) (body io.ReadCloser) {
         if err != nil {
             log.Fatal(fmt.Sprintf("Call to %s failed: %v", uri, err))
         }
+
     } else {
         log.Fatal("NewRequest() called, but no accessible session available.")
     }

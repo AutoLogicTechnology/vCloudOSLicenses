@@ -1,11 +1,9 @@
 
-package main 
+package vcloudoslicenses 
 
 import (
     "encoding/xml"
     "net/url"
-
-    // "log"
 )
 
 type VAppLinkRecord struct {

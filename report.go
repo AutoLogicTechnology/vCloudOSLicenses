@@ -1,8 +1,7 @@
 
-package main 
+package vcloudoslicenses 
 
 import (
-    "log"
     "strings"
     "sync"
 )
@@ -39,8 +38,6 @@ func ReportWorker (job *WorkerJob) {
 
             for _, vapp := range vapps.Records.Entities {
                 if vapp.Type == "application/vnd.vmware.vcloud.vApp+xml" {
-                    // log.Printf("vApp: %v", vapp.Name)
-
                     vms := &VMs{}
                     vms.GetAll(job.Session, vapp)
 
@@ -70,33 +67,31 @@ func ReportWorker (job *WorkerJob) {
                         }
                     }
 
-                    log.Printf("Report: %+v", report)
                     job.ResultsChannel <- report
                 }
             }
         }
     }
 
-    log.Print("End of worker...")
     job.Waiter.Done() 
 }
 
 func Report (session *vCloudSession) (report []*ReportDocument) {
-    var waiter sync.WaitGroup    
+    var reports []*ReportDocument
+    var maxorgs int = 30
 
+    waiter  := &sync.WaitGroup{}
     results := make(chan *ReportDocument)
 
-    var reports []*ReportDocument
-    var maxorgs int = 20
+    waiter.Add(maxorgs)
 
     orgs := &Organisations{}
     orgs.GetAll(session, "references", maxorgs)
-    waiter.Add(maxorgs)
 
     for _, org := range orgs.Records {
         job := &WorkerJob{
             Session:        session,
-            Waiter:         &waiter,
+            Waiter:         waiter,
             ResultsChannel: results,
             Organisation:   org,
         }
@@ -104,19 +99,14 @@ func Report (session *vCloudSession) (report []*ReportDocument) {
         go ReportWorker(job)
     }
 
-    waiter.Wait()
+    go func() {
+        waiter.Wait()
+        close(results)
+    }()
 
-    for {
-        report, OK := <- results
-
-        if OK != true {
-            break
-        }
-
-        log.Printf("vApp: %s: Windows = %d, RHEL = %d, CentOS = %d, Ubuntu = %d", report.VApp, report.MSWindows, report.RHEL, report.CentOS, report.Ubuntu)
+    for report := range results {
         reports = append(reports, report)
     }
-
-    close(results)    
+  
     return reports 
 }

@@ -1,5 +1,5 @@
 
-package main
+package vcloudoslicenses 
 
 import (
     "net/http"
@@ -49,12 +49,7 @@ func (v *vCloudSession) Get (uri string) (body io.ReadCloser) {
         request.Header.Add("x-vcloud-authorization", v.Token)
         request.Header.Add("Accept", "application/*+xml;version=5.1")
 
-        // log.Printf("\tNew HTTP request")
-
         client := &http.Client{Transport: v.Transport}
-
-        // log.Printf("\tNew HTTP client")
-
         response, err = client.Do(request)
 
         if err != nil {

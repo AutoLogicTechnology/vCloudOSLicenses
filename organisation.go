@@ -1,9 +1,8 @@
 
-package main 
+package vcloudoslicenses 
 
 import (
     "fmt"
-    // "log"
 
     "encoding/xml"
     "net/url"

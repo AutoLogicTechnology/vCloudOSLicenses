@@ -20,11 +20,16 @@ type Organisations struct {
 
 func (o *Organisations) GetAll (session *VCloudSession, format string, max_page_size, max_pages int) {
     
-    if max_pages <= 1 {
-        max_pages = 2
+    if max_page_size <= 0 {
+        max_page_size = 1
+    }
+
+    if max_pages <= 0 {
+        max_pages = 1
     }
 
     for i := 1; i <= max_pages; i++ {
+        fmt.Print("I = %d", i)
         uri := fmt.Sprintf("/api/query?type=organization&format=%v&pageSize=%v&page=%v", format, max_page_size, i)
 
         r := session.Get(uri)

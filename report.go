@@ -6,6 +6,8 @@ import (
     "sync"
     "time"
     "strconv"
+
+    "log"
 )
 
 type ReportDocument struct {
@@ -29,15 +31,21 @@ type WorkerJob struct {
 }
 
 func (v *VCloudSession) ReportWorker (job *WorkerJob) {
+    log.Print("Inside the worker...")
+
     vdcs := &VDCs{}
     vdcs.GetAll(v, job.Organisation)
 
     for _, vdc := range vdcs.Records {
+        log.Print("Going over VDCs...")
+
         if vdc.Type == "application/vnd.vmware.vcloud.vdc+xml" {
             vapps := &vApps{}
             vapps.GetAll(v, vdc)   
 
             for _, vapp := range vapps.Records.Entities {
+                log.Print("Going over vApps...")
+
                 if vapp.Type == "application/vnd.vmware.vcloud.vApp+xml" {
                     vms := &VMs{}
                     vms.GetAll(v, vapp)
@@ -59,6 +67,8 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     }
 
                     for _, vm := range vms.Records.Server {
+                        log.Print("And VMs...")
+
                         if strings.Contains(vm.OSType.Name, "windows") {
                             report.MSWindows++
                         } else if strings.Contains(vm.OSType.Name, "rhel") {
@@ -76,6 +86,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
         }
     }
 
+    log.Print("Worker done...")
     job.Waiter.Done() 
 }
 

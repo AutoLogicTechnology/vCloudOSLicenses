@@ -26,7 +26,7 @@ type ReportDocument struct {
 
 type WorkerJob struct {
     Waiter          *sync.WaitGroup
-    ResultsChannel  chan <- *ReportDocument
+    ResultsChannel  *chan <- *ReportDocument
     Organisation    *OrganisationReference
 }
 
@@ -80,6 +80,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                         }
                     }
 
+                    log.Printf("Report from worker: %+v", report)
                     job.ResultsChannel <- report
                 }
             }
@@ -112,7 +113,7 @@ func (v *VCloudSession) Report (max_organisations, max_pages int) (report []*Rep
     for _, org := range orgs.Records {
         job := &WorkerJob{
             Waiter:         waiter,
-            ResultsChannel: results,
+            ResultsChannel: &results,
             Organisation:   org,
         }
 

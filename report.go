@@ -47,7 +47,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     report := &ReportDocument{
                         Timestamp:      now.String(),
                         Year:           strconv.Itoa(now.Year()),
-                        Month:          now.Month(),
+                        Month:          now.Month().String(),
                         Day:            strconv.Itoa(now.Day()),
                         Organisation:   job.Organisation.Name,
                         VDC:            vdc.Name,

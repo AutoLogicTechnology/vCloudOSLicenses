@@ -11,7 +11,7 @@ type vCloud struct {
 
 type Configuration struct {
     vCloud          vCloud
-    Session         *vCloudToken 
+    Session         *vCloudSession
 
     Debugging       bool
 }

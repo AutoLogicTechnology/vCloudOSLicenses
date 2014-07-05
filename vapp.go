@@ -20,7 +20,7 @@ type vApps struct {
     Records Resources `xml:"ResourceEntities"`
 }
 
-func (a *vApps) GetAll (session *vCloudSession, vdc *VdcLinkRecord) {
+func (a *vApps) GetAll (session *VCloudSession, vdc *VdcLinkRecord) {
     r := session.Get(vdc.Href)
     defer r.Close()
 

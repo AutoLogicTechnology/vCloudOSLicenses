@@ -18,7 +18,7 @@ type Organisations struct {
     Records []*OrganisationReference `xml:"OrgReference"`
 }
 
-func (o *Organisations) GetAll (session *vCloudSession, format string, max int) {
+func (o *Organisations) GetAll (session *VCloudSession, format string, max int) {
     uri := fmt.Sprintf("/api/query?type=organization&format=%v&pageSize=%v", format, max)
 
     r := session.Get(uri)

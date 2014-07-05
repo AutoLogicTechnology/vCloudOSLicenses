@@ -16,7 +16,7 @@ type VDCs struct {
     Records []*VdcLinkRecord `xml:"Link"`
 }
 
-func (v *VDCs) GetAll (session *vCloudSession, org *OrganisationReference) {
+func (v *VDCs) GetAll (session *VCloudSession, org *OrganisationReference) {
     r := session.Get(org.Href)
     defer r.Close()
 

@@ -25,7 +25,7 @@ type VMs struct {
     Records Child `xml:"Children"`
 }
 
-func (v *VMs) GetAll (session *vCloudSession, vapp *VAppLinkRecord) {
+func (v *VMs) GetAll (session *VCloudSession, vapp *VAppLinkRecord) {
     r := session.Get(vapp.Href)
     defer r.Close()
 

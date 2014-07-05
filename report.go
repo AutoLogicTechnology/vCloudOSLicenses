@@ -21,25 +21,24 @@ type ReportDocument struct {
 }
 
 type WorkerJob struct {
-    Session         *vCloudSession
     Waiter          *sync.WaitGroup
     ResultsChannel  chan <- *ReportDocument
     Organisation    *OrganisationReference
 }
 
-func ReportWorker (job *WorkerJob) {
+func (v *vCloudSession) ReportWorker (job *WorkerJob) {
     vdcs := &VDCs{}
-    vdcs.GetAll(job.Session, job.Organisation)
+    vdcs.GetAll(v, job.Organisation)
 
     for _, vdc := range vdcs.Records {
         if vdc.Type == "application/vnd.vmware.vcloud.vdc+xml" {
             vapps := &vApps{}
-            vapps.GetAll(job.Session, vdc)   
+            vapps.GetAll(v, vdc)   
 
             for _, vapp := range vapps.Records.Entities {
                 if vapp.Type == "application/vnd.vmware.vcloud.vApp+xml" {
                     vms := &VMs{}
-                    vms.GetAll(job.Session, vapp)
+                    vms.GetAll(v, vapp)
 
                     report := &ReportDocument{
                         Timestamp:      "NIL",
@@ -76,27 +75,29 @@ func ReportWorker (job *WorkerJob) {
     job.Waiter.Done() 
 }
 
-func Report (session *vCloudSession) (report []*ReportDocument) {
+func (v *vCloudSession) Report (max_organisations int) (report []*ReportDocument) {
     var reports []*ReportDocument
-    var maxorgs int = 30
+    
+    if !max_organisations {
+        max_organisations = 10
+    }
 
     waiter  := &sync.WaitGroup{}
     results := make(chan *ReportDocument)
 
-    waiter.Add(maxorgs)
+    waiter.Add(max_organisations)
 
     orgs := &Organisations{}
-    orgs.GetAll(session, "references", maxorgs)
+    orgs.GetAll(v, "references", max_organisations)
 
     for _, org := range orgs.Records {
         job := &WorkerJob{
-            Session:        session,
             Waiter:         waiter,
             ResultsChannel: results,
             Organisation:   org,
         }
 
-        go ReportWorker(job)
+        go v.ReportWorker(job)
     }
 
     go func() {

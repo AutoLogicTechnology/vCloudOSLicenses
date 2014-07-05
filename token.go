@@ -12,18 +12,21 @@ import (
 
 type vCloudSession struct {
     Host            string 
+    Username        string 
+    Password        string 
+    Context         string
+
     Transport       *http.Transport
     Token           string
     Accessible      bool
 }
 
-func (v *vCloudSession) Login (host, username, context, password string) {
-    credentials := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s@%s:%s", username, context, password)))
+func (v *vCloudSession) Login () {
+    credentials := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s@%s:%s", v.username, v.context, v.password)))
 
-    v.Host          = host 
     v.Transport     = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
     
-    request, _      := http.NewRequest("GET", fmt.Sprintf("%s/api/sessions", host), nil)
+    request, _      := http.NewRequest("GET", fmt.Sprintf("%s/api/sessions", v.host), nil)
     request.Header.Add("Authorization", fmt.Sprintf("Basic %s", credentials))
     request.Header.Add("Accept", "application/*+xml;version=5.1")
 

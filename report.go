@@ -26,7 +26,7 @@ type WorkerJob struct {
     Organisation    *OrganisationReference
 }
 
-func (v *vCloudSession) ReportWorker (job *WorkerJob) {
+func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     vdcs := &VDCs{}
     vdcs.GetAll(v, job.Organisation)
 
@@ -75,7 +75,7 @@ func (v *vCloudSession) ReportWorker (job *WorkerJob) {
     job.Waiter.Done() 
 }
 
-func (v *vCloudSession) Report (max_organisations int) (report []*ReportDocument) {
+func (v *VCloudSession) Report (max_organisations int) (report []*ReportDocument) {
     var reports []*ReportDocument
     
     if max_organisations <= 0 {

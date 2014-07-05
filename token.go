@@ -10,7 +10,7 @@ import (
     "encoding/base64"
 )
 
-type vCloudSession struct {
+type VCloudSession struct {
     Host            string 
     Username        string 
     Password        string 
@@ -21,7 +21,7 @@ type vCloudSession struct {
     Accessible      bool
 }
 
-func (v *vCloudSession) Login () {
+func (v *VCloudSession) Login () {
     credentials := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s@%s:%s", v.Username, v.Context, v.Password)))
 
     v.Transport     = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
@@ -43,7 +43,7 @@ func (v *vCloudSession) Login () {
     v.Accessible    = true
 }
 
-func (v *vCloudSession) Get (uri string) (body io.ReadCloser) {
+func (v *VCloudSession) Get (uri string) (body io.ReadCloser) {
     var err error 
     var response *http.Response 
 

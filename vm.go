@@ -4,6 +4,8 @@ package vcloudoslicenses
 import (
     "encoding/xml"
     "net/url"
+
+    "log"
 )
 
 type VMRecordOSType struct {
@@ -34,4 +36,6 @@ func (v *VMs) GetAll (session *VCloudSession, vapp *VAppLinkRecord) {
         u, _ := url.Parse(v1.OSType.Href)
         v1.OSType.Href = u.Path 
     }
+
+    log.Printf("vm = %+v", v.Records.Server)
 }

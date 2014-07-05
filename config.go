@@ -9,16 +9,8 @@ type vCloud struct {
     Context     string
 }
 
-type ElasticSearch struct {
-    Hostname    string 
-    Port        string 
-    Index       string 
-    DocType     string
-}
-
 type Configuration struct {
     vCloud          vCloud
-    ElasticSearch   ElasticSearch
     Session         *vCloudToken 
 
     Debugging       bool

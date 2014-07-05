@@ -22,7 +22,7 @@ type ReportDocument struct {
 
 func ReportWorker (id int, session *vCloudSession, jobs <- chan *OrganisationReference, results chan <- *ReportDocument) {
 
-    log.Printf("Inside Worker: %d", id)
+    // log.Printf("Inside Worker: %d", id)
 
     for org := range jobs {
         vdcs := &VDCs{}
@@ -69,8 +69,7 @@ func ReportWorker (id int, session *vCloudSession, jobs <- chan *OrganisationRef
                                 report.Ubuntu++
                             }
                         }
-
-                        log.Printf("vApp: %s: Windows = %d, RHEL = %d, CentOS = %d, Ubuntu = %d", vapp.Name, report.MSWindows, report.RHEL, report.CentOS, report.Ubuntu)
+                        
                         results <- report 
                     }
                 }
@@ -80,13 +79,11 @@ func ReportWorker (id int, session *vCloudSession, jobs <- chan *OrganisationRef
 }
 
 func Report (session *vCloudSession) (report []*ReportDocument) {
-    log.SetFlags(log.Lmicroseconds)
+    jobs    := make(chan *OrganisationReference)
+    results := make(chan *ReportDocument)
 
     var reports []*ReportDocument
     var maxorgs int = 5
-
-    jobs := make(chan *OrganisationReference, 500)
-    results := make(chan *ReportDocument, 5000)
 
     for i := 1; i <= maxorgs; i++ {
         go ReportWorker(i, session, jobs, results)
@@ -95,20 +92,17 @@ func Report (session *vCloudSession) (report []*ReportDocument) {
     orgs := &Organisations{}
     orgs.GetAll(session, "references", maxorgs)
 
-    log.Printf("Orgs Found: %d", len(orgs.Records))
-
     for _, org := range orgs.Records {
-        log.Print("Adding Organisation to job queue")
-
         jobs <- org 
     }
-
     close(jobs)
 
     for report := range results {
-        reports = append(reports, report)
-    }
+        log.Printf("vApp: %s: Windows = %d, RHEL = %d, CentOS = %d, Ubuntu = %d", report.VApp, report.MSWindows, report.RHEL, report.CentOS, report.Ubuntu)
 
+        reports = append(reports, report)
+        <- results
+    }
     close(results)
 
     return reports 

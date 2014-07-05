@@ -5,6 +5,7 @@ import (
     "strings"
     "sync"
     "time"
+    "strconv"
 )
 
 type ReportDocument struct {
@@ -44,10 +45,10 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     now := time.Now()
 
                     report := &ReportDocument{
-                        Timestamp:      now,
-                        Year:           now.Year(),
-                        Month:          now.Month(),
-                        Day:            now.Day(),
+                        Timestamp:      now.String(),
+                        Year:           strconv.Itoa(now.Year()),
+                        Month:          strconv.Itoa(now.Month()),
+                        Day:            strconv.Itoa(now.Day()),
                         Organisation:   job.Organisation.Name,
                         VDC:            vdc.Name,
                         VApp:           vapp.Name,
@@ -78,11 +79,15 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     job.Waiter.Done() 
 }
 
-func (v *VCloudSession) Report (max_organisations int) (report []*ReportDocument) {
+func (v *VCloudSession) Report (max_organisations, max_pages int) (report []*ReportDocument) {
     var reports []*ReportDocument
     
     if max_organisations <= 0 {
         max_organisations = 10
+    }
+
+    if max_pages <= 0 {
+        max_pages = 1
     }
 
     waiter  := &sync.WaitGroup{}
@@ -91,7 +96,7 @@ func (v *VCloudSession) Report (max_organisations int) (report []*ReportDocument
     waiter.Add(max_organisations)
 
     orgs := &Organisations{}
-    orgs.GetAll(v, "references", max_organisations)
+    orgs.GetAll(v, "references", max_organisations, max_pages)
 
     for _, org := range orgs.Records {
         job := &WorkerJob{

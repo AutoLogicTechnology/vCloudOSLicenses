@@ -78,7 +78,7 @@ func (v *vCloudSession) ReportWorker (job *WorkerJob) {
 func (v *vCloudSession) Report (max_organisations int) (report []*ReportDocument) {
     var reports []*ReportDocument
     
-    if !max_organisations {
+    if max_organisations <= 0 {
         max_organisations = 10
     }
 

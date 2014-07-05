@@ -22,11 +22,11 @@ type vCloudSession struct {
 }
 
 func (v *vCloudSession) Login () {
-    credentials := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s@%s:%s", v.username, v.context, v.password)))
+    credentials := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s@%s:%s", v.Username, v.Context, v.Password)))
 
     v.Transport     = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
     
-    request, _      := http.NewRequest("GET", fmt.Sprintf("%s/api/sessions", v.host), nil)
+    request, _      := http.NewRequest("GET", fmt.Sprintf("%s/api/sessions", v.Host), nil)
     request.Header.Add("Authorization", fmt.Sprintf("Basic %s", credentials))
     request.Header.Add("Accept", "application/*+xml;version=5.1")
 

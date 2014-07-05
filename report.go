@@ -4,6 +4,7 @@ package main
 import (
     "log"
     "strings"
+    "sync"
 )
 
 type ReportDocument struct {
@@ -20,90 +21,102 @@ type ReportDocument struct {
     Ubuntu          uint 
 }
 
-func ReportWorker (id int, session *vCloudSession, jobs <- chan *OrganisationReference, results chan <- *ReportDocument) {
+type WorkerJob struct {
+    Session         *vCloudSession
+    Waiter          *sync.WaitGroup
+    ResultsChannel  chan <- *ReportDocument
+    Organisation    *OrganisationReference
+}
 
-    // log.Printf("Inside Worker: %d", id)
+func ReportWorker (job *WorkerJob) {
+    vdcs := &VDCs{}
+    vdcs.GetAll(job.Session, job.Organisation)
 
-    for org := range jobs {
-        vdcs := &VDCs{}
-        vdcs.GetAll(session, org)
-        
-        if len(vdcs.Records) <= 0 {
-            continue 
-        }
+    for _, vdc := range vdcs.Records {
+        if vdc.Type == "application/vnd.vmware.vcloud.vdc+xml" {
+            vapps := &vApps{}
+            vapps.GetAll(job.Session, vdc)   
 
-        for _, vdc := range vdcs.Records {
-            if vdc.Type == "application/vnd.vmware.vcloud.vdc+xml" {
-                vapps := &vApps{}
-                vapps.GetAll(session, vdc)   
+            for _, vapp := range vapps.Records.Entities {
+                if vapp.Type == "application/vnd.vmware.vcloud.vApp+xml" {
+                    // log.Printf("vApp: %v", vapp.Name)
 
-                for _, vapp := range vapps.Records.Entities {
-                    if vapp.Type == "application/vnd.vmware.vcloud.vApp+xml" {
-                        // log.Printf("vApp: %v", vapp.Name)
+                    vms := &VMs{}
+                    vms.GetAll(job.Session, vapp)
 
-                        vms := &VMs{}
-                        vms.GetAll(session, vapp)
-
-                        report := &ReportDocument{
-                            Timestamp:      "NIL",
-                            Year:           "NIL",
-                            Month:          "NIL",
-                            Day:            "NIL",
-                            Organisation:   org.Name,
-                            VDC:            vdc.Name,
-                            VApp:           vapp.Name,
-                            MSWindows:      0,
-                            RHEL:           0,
-                            CentOS:         0,
-                            Ubuntu:         0,
-                        }
-
-                        for _, vm := range vms.Records.Server {
-                            if strings.Contains(vm.OSType.Name, "windows") {
-                                report.MSWindows++
-                            } else if strings.Contains(vm.OSType.Name, "rhel") {
-                                report.RHEL++
-                            } else if strings.Contains(vm.OSType.Name, "centos") {
-                                report.CentOS++
-                            } else if strings.Contains(vm.OSType.Name, "ubuntu") {
-                                report.Ubuntu++
-                            }
-                        }
-                        
-                        results <- report 
+                    report := &ReportDocument{
+                        Timestamp:      "NIL",
+                        Year:           "NIL",
+                        Month:          "NIL",
+                        Day:            "NIL",
+                        Organisation:   job.Organisation.Name,
+                        VDC:            vdc.Name,
+                        VApp:           vapp.Name,
+                        MSWindows:      0,
+                        RHEL:           0,
+                        CentOS:         0,
+                        Ubuntu:         0,
                     }
+
+                    for _, vm := range vms.Records.Server {
+                        if strings.Contains(vm.OSType.Name, "windows") {
+                            report.MSWindows++
+                        } else if strings.Contains(vm.OSType.Name, "rhel") {
+                            report.RHEL++
+                        } else if strings.Contains(vm.OSType.Name, "centos") {
+                            report.CentOS++
+                        } else if strings.Contains(vm.OSType.Name, "ubuntu") {
+                            report.Ubuntu++
+                        }
+                    }
+
+                    log.Printf("Report: %+v", report)
+                    job.ResultsChannel <- report
                 }
             }
         }
     }
+
+    log.Print("End of worker...")
+    job.Waiter.Done() 
 }
 
 func Report (session *vCloudSession) (report []*ReportDocument) {
-    jobs    := make(chan *OrganisationReference)
+    var waiter sync.WaitGroup    
+
     results := make(chan *ReportDocument)
 
     var reports []*ReportDocument
-    var maxorgs int = 5
-
-    for i := 1; i <= maxorgs; i++ {
-        go ReportWorker(i, session, jobs, results)
-    }
+    var maxorgs int = 20
 
     orgs := &Organisations{}
     orgs.GetAll(session, "references", maxorgs)
+    waiter.Add(maxorgs)
 
     for _, org := range orgs.Records {
-        jobs <- org 
-    }
-    close(jobs)
+        job := &WorkerJob{
+            Session:        session,
+            Waiter:         &waiter,
+            ResultsChannel: results,
+            Organisation:   org,
+        }
 
-    for report := range results {
+        go ReportWorker(job)
+    }
+
+    waiter.Wait()
+
+    for {
+        report, OK := <- results
+
+        if OK != true {
+            break
+        }
+
         log.Printf("vApp: %s: Windows = %d, RHEL = %d, CentOS = %d, Ubuntu = %d", report.VApp, report.MSWindows, report.RHEL, report.CentOS, report.Ubuntu)
-
         reports = append(reports, report)
-        <- results
     }
-    close(results)
 
+    close(results)    
     return reports 
 }

@@ -38,14 +38,13 @@ func (o *Organisations) GetAll (session *VCloudSession, format string, max_page_
         if r.StatusCode == 400 {
             break 
         }
-
-        log.Printf("i = %v | uri = %s | status code = %v | me = %+v", i, uri, r.StatusCode, o.Records)
-
         _ = xml.NewDecoder(r.Body).Decode(o)
      
         for k, v := range o.Records {
             u, _ := url.Parse(v.Href)
             o.Records[k].Href = u.Path 
         }
+
+        log.Printf("i = %v | uri = %s | status code = %v | me = %+v", i, uri, r.StatusCode, o.Records)
     }
 }

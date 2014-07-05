@@ -3,7 +3,6 @@ package vcloudoslicenses
 
 import (
     "net/http"
-    "io"
     "crypto/tls"
     "log"
     "fmt"

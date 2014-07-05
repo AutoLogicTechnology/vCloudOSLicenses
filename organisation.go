@@ -3,12 +3,10 @@ package main
 
 import (
     "fmt"
+    // "log"
 
     "encoding/xml"
     "net/url"
-
-    // "io"
-    // "io/ioutil"
 )
 
 type OrganisationReference struct {
@@ -23,15 +21,12 @@ type Organisations struct {
 
 func (o *Organisations) GetAll (session *vCloudSession, format string, max int) {
     uri := fmt.Sprintf("/api/query?type=organization&format=%v&pageSize=%v", format, max)
-    
+
     r := session.Get(uri)
     defer r.Close()
 
     _ = xml.NewDecoder(r).Decode(o)
-    // xml_decoder.Decode(o)
-
-    // Loop over URLs and reduce the HREFs to URIs
-    // We don't need the whole URL
+ 
     for k, v := range o.Records {
         u, _ := url.Parse(v.Href)
         o.Records[k].Href = u.Path 

@@ -5,18 +5,21 @@ import (
     "encoding/xml"
     "net/url"
 
-    // "io"
-    // "io/ioutil"
+    // "log"
 )
 
 type VAppLinkRecord struct {
     Name    string `xml:"name,attr"`
     Href    string `xml:"href,attr"`
-    Type    string `xml:"type,atrr"`
+    Type    string `xml:"type,attr"`
+}
+
+type Resources struct {
+    Entities []*VAppLinkRecord `xml:"ResourceEntity"`
 }
 
 type vApps struct {
-    Records []*VAppLinkRecord `xml:"ResourceEntity"`
+    Records Resources `xml:"ResourceEntities"`
 }
 
 func (a *vApps) GetAll (session *vCloudSession, vdc *VdcLinkRecord) {
@@ -24,17 +27,8 @@ func (a *vApps) GetAll (session *vCloudSession, vdc *VdcLinkRecord) {
     defer r.Close()
 
     _ = xml.NewDecoder(r).Decode(a)
-    // xml_decoder.Decode(a)
-
-    // Loop over URLs and reduce the HREFs to URIs
-    // We don't need the whole URL
-    for k, v := range a.Records {
-        u, _ := url.Parse(v.Href)
-        a.Records[k].Href = u.Path 
+    for k1, v1 := range a.Records.Entities {
+        u, _ := url.Parse(v1.Href)
+        a.Records.Entities[k1].Href = u.Path 
     }
-
-    // r := session.Get(vdc.Href)
-    // defer r.Close()
-
-    // io.Copy(ioutil.Discard, r)
 }

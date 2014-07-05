@@ -30,7 +30,8 @@ func (o *Organisations) GetAll (session *VCloudSession, format string, max_page_
 
     for i := 1; i <= max_pages; i++ {
         uri := fmt.Sprintf("/api/query?type=organization&format=%v&pageSize=%v&page=%v", format, max_page_size, i)
-        fmt.Printf("I = %d, Url = %s", i, url)
+
+        fmt.Printf("I = %v | Url = %s", i, url)
 
         r := session.Get(uri)
         defer r.Body.Close()

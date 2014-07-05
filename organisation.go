@@ -2,7 +2,7 @@
 package vcloudoslicenses 
 
 import (
-    "fmt"
+    "log"
 
     "encoding/xml"
     "net/url"
@@ -31,7 +31,7 @@ func (o *Organisations) GetAll (session *VCloudSession, format string, max_page_
     for i := 1; i <= max_pages; i++ {
         uri := fmt.Sprintf("/api/query?type=organization&format=%v&pageSize=%v&page=%v", format, max_page_size, i)
 
-        fmt.Printf("I = %v | Uri = %s", i, uri)
+        log.Printf("i = %v | uri = %s", i, uri)
 
         r := session.Get(uri)
         defer r.Body.Close()

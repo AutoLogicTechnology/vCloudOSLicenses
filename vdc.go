@@ -4,6 +4,9 @@ package main
 import (
     "encoding/xml"
     "net/url"
+
+    // "io"
+    // "io/ioutil"
 )
 
 type VdcLinkRecord struct {
@@ -17,8 +20,11 @@ type VDCs struct {
 }
 
 func (v *VDCs) GetAll (session *vCloudSession, org *OrganisationReference) {
-    xml_decoder := xml.NewDecoder(session.Get(org.Href))
-    xml_decoder.Decode(v)
+    r := session.Get(org.Href)
+    defer r.Close()
+
+    _ = xml.NewDecoder(r).Decode(v)
+    // xml_decoder.Decode(v)
 
     // Loop over URLs and reduce the HREFs to URIs
     // We don't need the whole URL
@@ -28,4 +34,9 @@ func (v *VDCs) GetAll (session *vCloudSession, org *OrganisationReference) {
             v.Records[k].Href = u.Path
         }
     }
+
+    // r := session.Get(org.Href)
+    // defer r.Close()
+
+    // io.Copy(ioutil.Discard, r)
 }

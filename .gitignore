@@ -6,6 +6,8 @@
 # Folders
 _obj
 _test
+pkg/
+src/
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -21,3 +23,7 @@ _testmain.go
 
 *.exe
 *.test
+
+# Custom
+main.go
+vCloudOSLicenses

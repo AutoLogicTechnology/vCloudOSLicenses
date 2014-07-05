@@ -39,7 +39,7 @@ func (o *Organisations) GetAll (session *VCloudSession, format string, max_page_
             break 
         }
 
-        log.Printf("i = %v | uri = %s | status code = %v", i, uri, r.StatusCode)
+        log.Printf("i = %v | uri = %s | status code = %v | me = %+v", i, uri, r.StatusCode, o.Records)
 
         _ = xml.NewDecoder(r.Body).Decode(o)
      

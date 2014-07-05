@@ -4,6 +4,7 @@ package vcloudoslicenses
 import (
     "strings"
     "sync"
+    "time"
 )
 
 type ReportDocument struct {
@@ -40,11 +41,13 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     vms := &VMs{}
                     vms.GetAll(v, vapp)
 
+                    now := time.Now()
+
                     report := &ReportDocument{
-                        Timestamp:      "NIL",
-                        Year:           "NIL",
-                        Month:          "NIL",
-                        Day:            "NIL",
+                        Timestamp:      now,
+                        Year:           now.Year(),
+                        Month:          now.Month(),
+                        Day:            now.Day(),
                         Organisation:   job.Organisation.Name,
                         VDC:            vdc.Name,
                         VApp:           vapp.Name,

@@ -22,9 +22,9 @@ type vApps struct {
 
 func (a *vApps) GetAll (session *VCloudSession, vdc *VdcLinkRecord) {
     r := session.Get(vdc.Href)
-    defer r.Close()
+    defer r.Body.Close()
 
-    _ = xml.NewDecoder(r).Decode(a)
+    _ = xml.NewDecoder(r.Body).Decode(a)
     for k1, v1 := range a.Records.Entities {
         u, _ := url.Parse(v1.Href)
         a.Records.Entities[k1].Href = u.Path 

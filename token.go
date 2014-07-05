@@ -62,5 +62,5 @@ func (v *VCloudSession) Get (uri string) (body io.ReadCloser) {
         log.Fatal("NewRequest() called, but no accessible session available.")
     }
 
-    return response.Body 
+    return response
 }

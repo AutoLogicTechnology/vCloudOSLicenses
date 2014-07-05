@@ -18,16 +18,27 @@ type Organisations struct {
     Records []*OrganisationReference `xml:"OrgReference"`
 }
 
-func (o *Organisations) GetAll (session *VCloudSession, format string, max int) {
-    uri := fmt.Sprintf("/api/query?type=organization&format=%v&pageSize=%v", format, max)
+func (o *Organisations) GetAll (session *VCloudSession, format string, max_page_size, max_pages int) {
+    
+    if max_pages <= 1 {
+        max_pages = 2
+    }
 
-    r := session.Get(uri)
-    defer r.Close()
+    for i := 1; i <= max_pages; i++ {
+        uri := fmt.Sprintf("/api/query?type=organization&format=%v&pageSize=%v&page=%v", format, max_page_size, i)
 
-    _ = xml.NewDecoder(r).Decode(o)
- 
-    for k, v := range o.Records {
-        u, _ := url.Parse(v.Href)
-        o.Records[k].Href = u.Path 
+        r := session.Get(uri)
+        defer r.Body.Close()
+
+        if r.StatusCode == 400 {
+            break 
+        }
+
+        _ = xml.NewDecoder(r.Body).Decode(o)
+     
+        for k, v := range o.Records {
+            u, _ := url.Parse(v.Href)
+            o.Records[k].Href = u.Path 
+        }
     }
 }

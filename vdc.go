@@ -18,9 +18,9 @@ type VDCs struct {
 
 func (v *VDCs) GetAll (session *VCloudSession, org *OrganisationReference) {
     r := session.Get(org.Href)
-    defer r.Close()
+    defer r.Body.Close()
 
-    _ = xml.NewDecoder(r).Decode(v)
+    _ = xml.NewDecoder(r.Body).Decode(v)
 
     for k, val := range v.Records {
         if val.Type == "application/vnd.vmware.vcloud.vdc+xml" {

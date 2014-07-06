@@ -13,21 +13,21 @@ import (
 type AdminVAppRecord struct {
     XMLName string `xml:"AdminVAppRecord"`
 
-    VDCName             string `xml:"vdcName"`
-    VDC                 string `xml:"vdc"`
-    StorageKB           string `xml:"storageKB"`
-    Status              string `xml:"status"`
-    OwnerName           string `xml:"ownerName"`
-    Org                 string `xml:"org"`
-    NumberOfVMs         string `xml:"numberOfVMs"`
-    Name                string `xml:"name"`
-    MemoryAllocationMB  string `xml:"memoryAllocationMB"`
-    IsExpired           string `xml:"isExpired"`
-    IsEnabled           string `xml:"isEnabled"`
-    IsDeployed          string `xml:"isDeployed"`
-    CreationDate        string `xml:"creationDate"`
-    Href                string `xml:"href"`
-    NumberOfCpus        string `xml:"numberOfCpus"`
+    VDCName             string `xml:"vdcName,attr"`
+    VDC                 string `xml:"vdc,attr"`
+    StorageKB           string `xml:"storageKB,attr"`
+    Status              string `xml:"status,attr"`
+    OwnerName           string `xml:"ownerName,attr"`
+    Org                 string `xml:"org,attr"`
+    NumberOfVMs         string `xml:"numberOfVMs,attr"`
+    Name                string `xml:"name,attr"`
+    MemoryAllocationMB  string `xml:"memoryAllocationMB,attr"`
+    IsExpired           string `xml:"isExpired,attr"`
+    IsEnabled           string `xml:"isEnabled,attr"`
+    IsDeployed          string `xml:"isDeployed,attr"`
+    CreationDate        string `xml:"creationDate,attr"`
+    Href                string `xml:"href,attr"`
+    NumberOfCpus        string `xml:"numberOfCpus,attr"`
 }
 
 // type VAppQueryResults struct {

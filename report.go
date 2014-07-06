@@ -45,7 +45,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 
                     for _, vm := range vapp.VMs.VM {
                         log.Printf("vApp VM Selfie: %+v", vm)
-                        
+
                         now := time.Now()
                         report := &ReportDocument{
                             Timestamp:      now.String(),
@@ -70,9 +70,9 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                         } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
                             report.Ubuntu++
                         }
-
-                        job.ResultsChannel <- report
                     }
+
+                    job.ResultsChannel <- report
                 }
             }
         }

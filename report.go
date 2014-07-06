@@ -31,9 +31,6 @@ type WorkerJob struct {
 }
 
 func (v *VCloudSession) ReportWorker (job *WorkerJob) {
-    log.Print("Inside the worker...")
-    log.Print("Going over VDCs...")
-
     for _, link := range job.Organisation.Links {
         if link.Type == "application/vnd.vmware.vcloud.vdc+xml" {
             vdc := &VDC{}
@@ -41,8 +38,6 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 
             for _, entity := range vdc.ResourceEntities {
                 if entity.Type == "application/vnd.vmware.vcloud.vApp+xml" {
-                    log.Print("Going over vApps...")
-
                     vapp := &VApp{}
                     vapp.Get(v, entity)
 
@@ -82,7 +77,6 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
         }
     }
 
-    log.Print("Worker done...")
     job.Waiter.Done() 
 }
 

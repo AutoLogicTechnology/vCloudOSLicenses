@@ -3,6 +3,7 @@ package vcloudoslicenses
 
 import (
     "fmt"
+    "log"
 
     "encoding/xml"
     "net/url"
@@ -47,6 +48,8 @@ func FindVApps (session *VCloudSession, max_page_size, max_pages int) (VApps []*
         for k,v := range vapp.Records {
             u, _ := url.Parse(v.Href)
             vapp.Records[k].Href = u.Path
+
+            log.Printf("Found vApp: %+v", v)
         }
 
         VApps = append(VApps, vapp)

@@ -2,7 +2,7 @@
 package vcloudoslicenses
 
 import (
-    "log"
+    // "log"
     "fmt"
 
     "encoding/xml"
@@ -10,21 +10,21 @@ import (
     "errors"
 )
 
-type OrganisationReference struct {
+type OrgReference struct {
     XMLName string `xml:"OrgReference"`
     Name    string `xml:"name,attr"`
     Id      string `xml:"id,attr"`
     Href    string `xml:"href,attr"`
 }
 
-type Organisations struct {
+type OrgReferences struct {
     XMLName     string  `xml:"OrgReferences"`
-    Records     []*OrganisationReference `xml:"OrgReference"`
+    Records     []*OrgReference `xml:"OrgReference"`
 }
 
-func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (Orgs *Organisations, err error) {
+func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (Orgs []*Organisation, err error) {
 
-	Orgs = &Organisations{}
+	Orgs = []&Organisation{}
 
     if max_page_size <= 0 {
         max_page_size = 1
@@ -35,11 +35,11 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
     }
 
     for i := 1; i <= max_pages; i++ {
-    	o := &Organisations{}
+    	page := &OrgReferences{}
 
         uri := fmt.Sprintf("/api/query?type=organization&format=references&pageSize=%v&page=%v", max_page_size, i)
 
-        log.Printf("Uri: %+v", uri)
+        // log.Printf("Uri: %+v", uri)
 
         r := session.Get(uri)
         defer r.Body.Close()
@@ -48,20 +48,27 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
             break 
         }
 
-        _ = xml.NewDecoder(r.Body).Decode(o)
+        _ = xml.NewDecoder(r.Body).Decode(page)
      
-        for k, v := range o.Records {
+        for _, v := range page.Records {
             u, _ := url.Parse(v.Href)
-            o.Records[k].Href = u.Path 
+            r 	 := session.Get(u)
+            defer r.Body.Close()
 
-            Orgs.Records = append(Orgs.Records, v)
+            if r.StatusCode != 200 {
+            	continue 
+            }
+
+            new_org := &Organisation{}
+            _ = xml.NewDecoder(r.Body).Decode(new_org)
+            Orgs = append(Orgs, new_org)
         }
 
-        log.Printf("i = %v | uri = %s | status code = %v | me = %+v", i, uri, r.StatusCode, o.Records)
+        // log.Printf("i = %v | uri = %s | status code = %v | me = %+v", i, uri, r.StatusCode, o.Records)
     }
 
     if len(Orgs.Records) <= 0 {
-    	return &Organisations{}, errors.New("No organisations returned.")
+    	return []&Organisations{}, errors.New("No organisations returned.")
     } else {
     	return Orgs, nil
     }

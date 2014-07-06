@@ -45,7 +45,7 @@ type VApp struct {
     Type        string `xml:"deployed,attr"`
     Href        string `xml:"deployed,attr"`
 
-    Children    *VAppChildren `xml:"Children"`
+    Children    VAppChildren `xml:"Children"`
 }
 
 func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
@@ -54,7 +54,7 @@ func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
 
     _ = xml.NewDecoder(r.Body).Decode(a)
 
-    log.Printf("vApp Children Selfie: %+v", a.Children)
+    log.Printf("vApp Children Selfie: %+v", a)
 
     for k1, v1 := range a.Children.Child {
         u, _ := url.Parse(v1.Href)

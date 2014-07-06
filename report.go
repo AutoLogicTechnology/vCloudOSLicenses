@@ -52,6 +52,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                         RHEL:           0,
                         CentOS:         0,
                         Ubuntu:         0,
+                        Unknown:        0,
                     }
 
                     for _, vm := range vapp.VMs.VM {
@@ -63,6 +64,8 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                             report.CentOS++
                         } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
                             report.Ubuntu++
+                        } else {
+                            report.Unknown++
                         }
                     }
 

@@ -8,7 +8,7 @@ import (
     "strconv"
     "encoding/xml"
 
-    // "log"
+    "log"
 )
 
 type ReportTotal struct {
@@ -106,9 +106,7 @@ func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
 
     for job := range jobs {
 
-        // if OK != true {
-        //     break
-        // }
+        log.Printf("Job: %+v", job)
 
         vdc := &VDCVApp{}
 
@@ -153,6 +151,8 @@ func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
             }
         }
 
+        log.Printf("Report: %+v", report)
+        
         job.ResultsChannel <- report
         job.Waiter.Done()
     }

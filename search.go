@@ -24,8 +24,6 @@ type OrgReferences struct {
 
 func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (Orgs []*Organisation, err error) {
 
-	// Orgs = []*Organisation{}
-
     if max_page_size <= 0 {
         max_page_size = 1
     }
@@ -61,8 +59,6 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
             _ = xml.NewDecoder(r.Body).Decode(new_org)
             Orgs = append(Orgs, new_org)
         }
-
-        // log.Printf("i = %v | uri = %s | status code = %v | me = %+v", i, uri, r.StatusCode, o.Records)
     }
 
     if len(Orgs) <= 0 {

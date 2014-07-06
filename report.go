@@ -2,10 +2,10 @@
 package vcloudoslicenses 
 
 import (
-    // "strings"
+    "strings"
     "sync"
-    // "time"
-    // "strconv"
+    "time"
+    "strconv"
 
     "log"
 )
@@ -30,66 +30,55 @@ type WorkerJob struct {
     Organisation    *OrgReference
 }
 
-// func (v *VCloudSession) ReportWorker (job *WorkerJob) {
-//     log.Print("Inside the worker...")
+func (v *VCloudSession) ReportWorker (job *WorkerJob) {
+    log.Print("Inside the worker...")
+    log.Print("Going over VDCs...")
 
-//     vdcs := &VDCs{}
-//     vdcs.GetAll(v, job.Organisation)
+    vdc := &VDC{}
+    vdc.Get(v, job.Organisation)
 
-//     for _, vdc := range vdcs.Records {
-//         log.Print("Going over VDCs...")
+    for _, entity := range vdc.ResourceEntities {
+        log.Print("Going over vApps...")
 
-//         if vdc.Type == "application/vnd.vmware.vcloud.vdc+xml" {
-//             vapps := &vApps{}
-//             vapps.GetAll(v, vdc)   
+        vapp := &VApp{}
+        vapp.Get(v, entity)   
 
-//             for _, vapp := range vapps.Records.Entities {
-//                 log.Print("Going over vApps...")
+        for _, vm := range vapp.Children {
+            log.Print("Going over VMs...")
 
-//                 if vapp.Type == "application/vnd.vmware.vcloud.vApp+xml" {
-//                     vms := &VMs{}
-//                     vms.GetAll(v, vapp)
+            now := time.Now()
+            report := &ReportDocument{
+                Timestamp:      now.String(),
+                Year:           strconv.Itoa(now.Year()),
+                Month:          now.Month().String(),
+                Day:            strconv.Itoa(now.Day()),
+                Organisation:   job.Organisation.Name,
+                VDC:            vdc.Name,
+                VApp:           vapp.Name,
+                MSWindows:      0,
+                RHEL:           0,
+                CentOS:         0,
+                Ubuntu:         0,
+            }
 
-//                     now := time.Now()
+            if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
+                report.MSWindows++
+            } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
+                report.RHEL++
+            } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
+                report.CentOS++
+            } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
+                report.Ubuntu++
+            }
 
-//                     report := &ReportDocument{
-//                         Timestamp:      now.String(),
-//                         Year:           strconv.Itoa(now.Year()),
-//                         Month:          now.Month().String(),
-//                         Day:            strconv.Itoa(now.Day()),
-//                         Organisation:   job.Organisation.Name,
-//                         VDC:            vdc.Name,
-//                         VApp:           vapp.Name,
-//                         MSWindows:      0,
-//                         RHEL:           0,
-//                         CentOS:         0,
-//                         Ubuntu:         0,
-//                     }
+            log.Printf("Report from worker: %+v", report)
+            job.ResultsChannel <- report
+        }
+    }
 
-//                     for _, vm := range vms.Records.Server {
-//                         log.Print("And VMs...")
-
-//                         if strings.Contains(vm.OSType.Name, "windows") {
-//                             report.MSWindows++
-//                         } else if strings.Contains(vm.OSType.Name, "rhel") {
-//                             report.RHEL++
-//                         } else if strings.Contains(vm.OSType.Name, "centos") {
-//                             report.CentOS++
-//                         } else if strings.Contains(vm.OSType.Name, "ubuntu") {
-//                             report.Ubuntu++
-//                         }
-//                     }
-
-//                     log.Printf("Report from worker: %+v", report)
-//                     job.ResultsChannel <- report
-//                 }
-//             }
-//         }
-//     }
-
-//     log.Print("Worker done...")
-//     job.Waiter.Done() 
-// }
+    log.Print("Worker done...")
+    job.Waiter.Done() 
+}
 
 func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report []*ReportDocument) {
     var reports []*ReportDocument
@@ -102,34 +91,32 @@ func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report
         max_pages = 1
     }
 
-    // waiter  := &sync.WaitGroup{}
-    // results := make(chan *ReportDocument)
+    waiter  := &sync.WaitGroup{}
+    results := make(chan *ReportDocument)
 
-    // waiter.Add(max_organisations)
+    waiter.Add(max_organisations)
 
     orgs, _ := FindOrganisations(v, max_organisations, max_pages)
     // orgs.GetAll(v, "references", max_organisations, max_pages)
 
-    log.Printf("Orgs: %+v", orgs)
+    for _, org := range orgs {
+        job := &WorkerJob{
+            Waiter:         waiter,
+            ResultsChannel: results,
+            Organisation:   org,
+        }
 
-    // for _, org := range orgs.Records {
-    //     job := &WorkerJob{
-    //         Waiter:         waiter,
-    //         ResultsChannel: results,
-    //         Organisation:   org,
-    //     }
+        go v.ReportWorker(job)
+    }
 
-    //     go v.ReportWorker(job)
-    // }
+    go func() {
+        waiter.Wait()
+        close(results)
+    }()
 
-    // go func() {
-    //     waiter.Wait()
-    //     close(results)
-    // }()
-
-    // for report := range results {
-    //     reports = append(reports, report)
-    // }
+    for report := range results {
+        reports = append(reports, report)
+    }
   
     return reports 
 }

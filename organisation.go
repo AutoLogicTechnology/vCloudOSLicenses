@@ -17,5 +17,5 @@ type Organisation struct {
     Type        string `xml:"type,attr"`
     Href        string `xml:"href,attr"`
 
-    Records     []*OrgLink `xml:"Link"`
+    Links       []*OrgLink `xml:"Link"`
 }

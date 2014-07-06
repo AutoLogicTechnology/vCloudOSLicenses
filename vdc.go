@@ -6,30 +6,40 @@ import (
     "net/url"
 )
 
-type Link struct {
-    XMLName string `xml:"Link"`
+type ResourceEntity struct {
+    XMLName string `xml:"ResourceEntity"`
 
     Name    string `xml:"name,attr"`
-    Href    string `xml:"href,attr"`
     Type    string `xml:"type,attr"`
+    Href    string `xml:"href,attr"` 
 }
 
-type VDCs struct {
-    XMLName string `xml:"Org"`
+type VDC struct {
+    XMLName string `xml:"Vdc"`
 
-    Records []*Link `xml:"Link"`
+    Status  string `xml:"status,attr"`
+    Name    string `xml:"name,attr"`
+    Id      string `xml:"id,attr"`
+    Type    string `xml:"type,attr"`
+    Href    string `xml:"href,attr"`
+
+    ResourceEntities []*ResourceEntity `xml:"ResourceEntities"`
 }
 
-func (v *VDCs) GetAll (session *VCloudSession, org *OrgReference) {
-    r := session.Get(org.Href)
-    defer r.Body.Close()
+func (v *VDC) Get (session *VCloudSession, org *Organisation) {
+    for link := range org.Links {
+        if link.Type == "application/vnd.vmware.vcloud.vdc+xml" {
+            r := session.Get(link.Href)
+            defer r.Body.Close()
 
-    _ = xml.NewDecoder(r.Body).Decode(v)
+            _ = xml.NewDecoder(r.Body).Decode(v)
 
-    for k, val := range v.Records {
-        if val.Type == "application/vnd.vmware.vcloud.vdc+xml" {
-            u, _ := url.Parse(val.Href)
-            v.Records[k].Href = u.Path
+            for k, val := range v.ResourceEntities {
+                u, _ := url.Parse(val.Href)
+                v.ResourceEntities[k].Href = u.Path
+            }
+
+            break
         }
-    }
+    }    
 }

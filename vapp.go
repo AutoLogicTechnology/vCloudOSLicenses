@@ -1,32 +1,62 @@
 
 package vcloudoslicenses 
 
-// import (
-//     "encoding/xml"
-//     "net/url"
-// )
+import (
+    "encoding/xml"
+    "net/url"
+)
 
-type VAppLinkRecord struct {
-    Name    string `xml:"name,attr"`
-    Href    string `xml:"href,attr"`
-    Type    string `xml:"type,attr"`
+type VmOS struct {
+    XMLName     string `xml:"OperatingSystemSection"`
+
+    Id          string `xml:"deployed,attr"`
+    Type        string `xml:"deployed,attr"`
+    Href        string `xml:"deployed,attr"`
+    OSType      string `xml:"osType,attr"`
 }
 
-type Resources struct {
-    Entities []*VAppLinkRecord `xml:"ResourceEntity"`
+type Vm struct {
+    XMLName     string `xml:"Vm"`
+
+    Deployed    string `xml:"deployed,attr"`
+    Status      string `xml:"deployed,attr"`
+    Name        string `xml:"deployed,attr"`
+    Id          string `xml:"deployed,attr"`
+    Type        string `xml:"deployed,attr"`
+    Href        string `xml:"deployed,attr"`
+
+    OperatingSystemSection *VmOS `xml:"OperatingSystemSection"`
 }
 
-type vApps struct {
-    Records Resources `xml:"ResourceEntities"`
+type VApp struct {
+    XMLName     string `xml:"VApp"`
+
+    Deployed    string `xml:"deployed,attr"`
+    Status      string `xml:"deployed,attr"`
+    Name        string `xml:"deployed,attr"`
+    Id          string `xml:"deployed,attr"`
+    Type        string `xml:"deployed,attr"`
+    Href        string `xml:"deployed,attr"`
+
+    Children    []*Vm `xml:"Children"`
 }
 
-// func (a *vApps) GetAll (session *VCloudSession, vdc *VdcLinkRecord) {
-//     r := session.Get(vdc.Href)
-//     defer r.Body.Close()
+func (a *VApp) Get (session *VCloudSession, vdc *VDC) {
+    for entity := range vdc.ResourceEntities {
+        if entity.Type == "application/vnd.vmware.vcloud.vApp+xml" {
+            r := session.Get(entity.Href)
+            defer r.Body.Close()
 
-//     _ = xml.NewDecoder(r.Body).Decode(a)
-//     for k1, v1 := range a.Records.Entities {
-//         u, _ := url.Parse(v1.Href)
-//         a.Records.Entities[k1].Href = u.Path 
-//     }
-// }
+            _ = xml.NewDecoder(r.Body).Decode(a)
+            for k1, v1 := range a.Children {
+                u, _ := url.Parse(v1.Href)
+                a.Children[k1].Href = u.Path 
+
+                u, _ := url.Parse(v1.OperatingSystemSection.Href)
+                a.Children[k1].OperatingSystemSection.Href = u.Path
+            }
+
+            break
+        }
+    }
+}

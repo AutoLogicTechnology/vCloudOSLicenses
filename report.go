@@ -7,7 +7,6 @@ import (
     "time"
     "strconv"
     "encoding/xml"
-    "net/url"
 
     "log"
 )
@@ -159,69 +158,54 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 //     log.Print("Worker finished...")
 // }
 
-func (v *VCloudSession) VAppReportWorker (vapp *AdminVAppRecord, results chan <- *ReportDocument) {
-    vdc := &VDCVApp{}
-
-    log.Print("Report Worker working...")
-
-    r := v.Get(vapp.Href)
-    defer r.Body.Close()
-
-    log.Printf("Report Worker status code: %d", r.StatusCode)
-
-    if r.StatusCode != 200 {
-        return 
-    }
-
-    now := time.Now()
-    report := &ReportDocument{
-        Timestamp:      now.String(),
-        Year:           strconv.Itoa(now.Year()),
-        Month:          now.Month().String(),
-        Day:            strconv.Itoa(now.Day()),
-        Organisation:   vapp.OwnerName,
-        VDC:            vapp.VDCName,
-        VApp:           vapp.Name,
-        MSWindows:      0,
-        RHEL:           0,
-        CentOS:         0,
-        Ubuntu:         0,
-        Unknown:        0,
-    }
-
-    _ = xml.NewDecoder(r.Body).Decode(vdc)
-    for k,vm := range vdc.VMs.VM {
-        u, _ := url.Parse(vm.Href)
-        vdc.VMs.VM[k].Href = u.Path
-
-        v.Counters.VMs++
-
-        if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
-            report.MSWindows++
-        } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
-            report.RHEL++
-        } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
-            report.CentOS++
-        } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
-            report.Ubuntu++
-        } else {
-            report.Unknown++
-        }
-    }
-
-    log.Printf("Report: %+v", report)
-}
-
 func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*ReportDocument) {
-    results  := make(chan *ReportDocument)
     vapps, _ := v.FindVApps(max_vapps, max_pages)
-
     for _, vapp := range vapps {
-        go v.VAppReportWorker(vapp, results)
-    }
+        vdc := &VDCVApp{}
 
-    for result := range results {
-        reports = append(reports, result)
+        r := v.Get(vapp.Href)
+        defer r.Body.Close()
+
+        if r.StatusCode != 200 {
+            continue 
+        }
+
+        _ = xml.NewDecoder(r.Body).Decode(vdc)
+
+        now := time.Now()
+        report := &ReportDocument{
+            Timestamp:      now.String(),
+            Year:           strconv.Itoa(now.Year()),
+            Month:          now.Month().String(),
+            Day:            strconv.Itoa(now.Day()),
+            Organisation:   vapp.OwnerName,
+            VDC:            vapp.VDCName,
+            VApp:           vapp.Name,
+            MSWindows:      0,
+            RHEL:           0,
+            CentOS:         0,
+            Ubuntu:         0,
+            Unknown:        0,
+        }
+ 
+        for _, vm := range vdc.VMs.VM {
+            v.Counters.VMs++
+
+            if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
+                report.MSWindows++
+            } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
+                report.RHEL++
+            } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
+                report.CentOS++
+            } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
+                report.Ubuntu++
+            } else {
+                report.Unknown++
+            }
+        }
+
+        log.Printf("Report: %+v", report) 
+        reports = append(reports, report)
     }
   
     return reports 

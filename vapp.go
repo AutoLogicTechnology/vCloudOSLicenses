@@ -6,7 +6,7 @@ import (
     // "io/ioutil"
 
     "encoding/xml"
-    "net/url"
+    // "net/url"
 )
 
 type VmOS struct {

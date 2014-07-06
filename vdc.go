@@ -6,14 +6,18 @@ import (
     "net/url"
 )
 
-type VdcLinkRecord struct {
+type Link struct {
+    XMLName string `xml:"Link"`
+
     Name    string `xml:"name,attr"`
     Href    string `xml:"href,attr"`
     Type    string `xml:"type,attr"`
 }
 
 type VDCs struct {
-    Records []*VdcLinkRecord `xml:"Link"`
+    XMLName string `xml:"Org"`
+    
+    Records []*Link `xml:"Link"`
 }
 
 func (v *VDCs) GetAll (session *VCloudSession, org *OrganisationReference) {

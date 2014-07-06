@@ -91,7 +91,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     job.Waiter.Done() 
 }
 
-func (v *VCloudSession) Report (max_organisations, max_pages int) (report []*ReportDocument) {
+func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report []*ReportDocument) {
     var reports []*ReportDocument
     
     if max_organisations <= 0 {
@@ -107,27 +107,29 @@ func (v *VCloudSession) Report (max_organisations, max_pages int) (report []*Rep
 
     waiter.Add(max_organisations)
 
-    orgs := &Organisations{}
-    orgs.GetAll(v, "references", max_organisations, max_pages)
+    orgs := FindOrganisations(v, 10, 1)
+    // orgs.GetAll(v, "references", max_organisations, max_pages)
 
-    for _, org := range orgs.Records {
-        job := &WorkerJob{
-            Waiter:         waiter,
-            ResultsChannel: results,
-            Organisation:   org,
-        }
+    log.Printf("Orgs: %+v", orgs)
 
-        go v.ReportWorker(job)
-    }
+    // for _, org := range orgs.Records {
+    //     job := &WorkerJob{
+    //         Waiter:         waiter,
+    //         ResultsChannel: results,
+    //         Organisation:   org,
+    //     }
 
-    go func() {
-        waiter.Wait()
-        close(results)
-    }()
+    //     go v.ReportWorker(job)
+    // }
 
-    for report := range results {
-        reports = append(reports, report)
-    }
+    // go func() {
+    //     waiter.Wait()
+    //     close(results)
+    // }()
+
+    // for report := range results {
+    //     reports = append(reports, report)
+    // }
   
     return reports 
 }

@@ -30,6 +30,10 @@ type AdminVAppRecord struct {
     NumberOfCpus        string `xml:"numberOfCpus"`
 }
 
+// type VAppQueryResults struct {
+//     XMLName string `xml:"AdminVAppRecord"`
+// }
+
 type VAppQueryResultsRecords struct {
     XMLName string `xml:"QueryResultRecords"`
     Records []*AdminVAppRecord `xml:"AdminVAppRecord"`

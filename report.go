@@ -45,7 +45,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     vapp := &VApp{}
                     vapp.Get(v, entity)
 
-                    for _, vm := range vapp.Children {
+                    for _, vm := range vapp.Children.Child {
                         log.Print("Going over VMs...")
 
                         now := time.Now()

@@ -53,7 +53,7 @@ func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
     defer r.Body.Close()
 
     _ = xml.NewDecoder(r.Body).Decode(a)
-    for k1, v1 := range a.Children {
+    for k1, v1 := range a.Children.Child {
         u, _ := url.Parse(v1.Href)
         a.Children[k1].Href = u.Path 
 

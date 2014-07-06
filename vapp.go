@@ -33,7 +33,7 @@ type Vm struct {
 
 type VAppChildren struct {
     XMLName     string `xml:"Children"`
-    Child       []*Vm `xml:"Vm"`
+    VM          []*Vm `xml:"Vm"`
 }
 
 type VApp struct {
@@ -46,7 +46,7 @@ type VApp struct {
     Type        string `xml:"deployed,attr"`
     Href        string `xml:"deployed,attr"`
 
-    // Children    VAppChildren `xml:"Children"`
+    VMs         *VAppChildren `xml:"Children"`
 }
 
 func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {

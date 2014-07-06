@@ -92,7 +92,6 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
         }
     }
 
-    log.Printf("VDCs: %d, vApps: %d, and VMs: %d", vdc_counter, vapp_counter, vm_counter)
     job.Waiter.Done() 
 }
 

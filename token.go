@@ -10,10 +10,10 @@ import (
 )
 
 type SessionCounter struct {
-    Orgs    uint 
-    VDCs    uint 
-    VApps   uint 
-    VMs     uint 
+    Orgs    int 
+    VDCs    int 
+    VApps   int 
+    VMs     int 
 }
 
 type VCloudSession struct {

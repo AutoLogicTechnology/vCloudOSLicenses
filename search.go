@@ -38,6 +38,9 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
     	o := &Organisations{}
 
         uri := fmt.Sprintf("/api/query?type=organization&format=references&pageSize=%v&page=%v", max_page_size, i)
+
+        log.Printf("Uri: %+v", uri)
+
         r := session.Get(uri)
         defer r.Body.Close()
 

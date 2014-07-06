@@ -27,7 +27,7 @@ type ReportDocument struct {
 type WorkerJob struct {
     Waiter          *sync.WaitGroup
     ResultsChannel  chan <- *ReportDocument
-    Organisation    *OrganisationReference
+    Organisation    *OrgReference
 }
 
 // func (v *VCloudSession) ReportWorker (job *WorkerJob) {

@@ -175,7 +175,6 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
 
         jobs <- job 
     }
-    close(jobs)
 
     for i := 1; i <= 10; i++ {
         go v.VAppReportWorker(jobs)
@@ -184,6 +183,7 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     go func() {
         waiter.Wait()
         close(results)
+        close(jobs)
     }()
 
     for report := range results {

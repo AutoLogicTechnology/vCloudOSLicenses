@@ -39,8 +39,6 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
 
         uri := fmt.Sprintf("/api/query?type=organization&format=references&pageSize=%v&page=%v", max_page_size, i)
 
-        // log.Printf("Uri: %+v", uri)
-
         r := session.Get(uri)
         defer r.Body.Close()
 
@@ -51,8 +49,8 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
         _ = xml.NewDecoder(r.Body).Decode(page)
      
         for _, v := range page.Records {
-            u := url.Parse(v.Href).Path
-            r := session.Get(u)
+            u, _ := url.Parse(v.Href)
+            r := session.Get(u.Path)
             defer r.Body.Close()
 
             if r.StatusCode != 200 {

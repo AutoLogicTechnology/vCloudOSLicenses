@@ -16,11 +16,11 @@ type Link struct {
 
 type VDCs struct {
     XMLName string `xml:"Org"`
-    
+
     Records []*Link `xml:"Link"`
 }
 
-func (v *VDCs) GetAll (session *VCloudSession, org *OrganisationReference) {
+func (v *VDCs) GetAll (session *VCloudSession, org *OrgReference) {
     r := session.Get(org.Href)
     defer r.Body.Close()
 

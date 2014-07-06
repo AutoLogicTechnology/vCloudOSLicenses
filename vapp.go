@@ -54,7 +54,7 @@ func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
     defer r.Body.Close()
 
     raw, _ := ioutil.ReadAll(r.Body)
-    log.Printf("RAW VAPP BODY: %v", raw)
+    log.Printf("RAW VAPP BODY: %v", string(raw))
 
     _ = xml.NewDecoder(r.Body).Decode(a)
 

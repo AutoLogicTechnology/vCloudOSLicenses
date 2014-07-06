@@ -7,7 +7,7 @@ import (
     "time"
     "strconv"
 
-    // "log"
+    "log"
 )
 
 type ReportTotal struct {
@@ -37,6 +37,12 @@ type WorkerJob struct {
     Waiter          *sync.WaitGroup
     ResultsChannel  chan <- *ReportDocument
     Organisation    *Organisation
+}
+
+type VAppWorkerJob struct {
+    Waiter          *sync.WaitGroup
+    ResultsChannel  chan <- *ReportDocument
+    VApp            *AdminVAppRecord
 }
 
 func (v *VCloudSession) ReportWorker (job *WorkerJob) {
@@ -95,9 +101,81 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     job.Waiter.Done() 
 }
 
-func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (results []*AdminVAppRecord) {
-    results, _ = FindVApps(v, max_vapps, max_pages)
-    return results 
+func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
+
+    for job := jobs {
+        log.Printf("Job: %+v", job)
+        now := time.Now()
+        report := &ReportDocument{
+            Timestamp:      now.String(),
+            Year:           strconv.Itoa(now.Year()),
+            Month:          now.Month().String(),
+            Day:            strconv.Itoa(now.Day()),
+            Organisation:   "job.Organisation.Name",
+            VDC:            "vdc.Name",
+            VApp:           "vapp.Name",
+            MSWindows:      0,
+            RHEL:           0,
+            CentOS:         0,
+            Ubuntu:         0,
+            Unknown:        0,
+        }
+
+        // for _, vm := range vapp.VMs.VM {
+        //     v.Counters.VMs++
+
+        //     if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
+        //         report.MSWindows++
+        //     } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
+        //         report.RHEL++
+        //     } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
+        //         report.CentOS++
+        //     } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
+        //         report.Ubuntu++
+        //     } else {
+        //         report.Unknown++
+        //     }
+        // }
+
+        job.ResultsChannel <- report
+    }
+
+    job.Waiter.Done() 
+}
+
+func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*ReportDocument) {
+    waiter  := &sync.WaitGroup{}
+    waiter.Add(10)
+
+    results := make(chan *ReportDocument)
+    jobs    := make(chan *VAppWorkerJob)
+
+    for i := 1; i <= 10; i++ {
+        go v.VAppReportWorker()
+    }
+
+    vapps, _ = v.FindVApps(max_vapps, max_pages)
+    for _, vapp := range vapps {
+        job := &VAppWorkerJob{
+            Waiter:         waiter,
+            ResultsChannel: results,
+            VApp:           vapp, 
+        }
+
+        jobs <- job 
+    }
+    close(jobs)
+
+    go func() {
+        waiter.Wait()
+        close(results)
+    }()
+
+    for report := range results {
+        reports = append(reports, report)
+    }
+  
+    return reports 
 }
 
 func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report []*ReportDocument) {
@@ -116,7 +194,7 @@ func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report
 
     waiter.Add(max_organisations)
 
-    orgs, _ := FindOrganisations(v, max_organisations, max_pages)
+    orgs, _ := v.FindOrganisations(max_organisations, max_pages)
     v.Counters.Orgs = len(orgs)
 
     for _, org := range orgs {

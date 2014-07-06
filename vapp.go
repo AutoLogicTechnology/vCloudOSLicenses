@@ -97,3 +97,4 @@ func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
         }
     // }
 }
+

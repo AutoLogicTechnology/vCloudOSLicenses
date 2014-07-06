@@ -21,7 +21,7 @@ type OrgReferences struct {
     Records     []*OrgReference `xml:"OrgReference"`
 }
 
-func FindVApps (session *VCloudSession, max_page_size, max_pages int) (VApps []*AdminVAppRecord, err error) {
+func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*AdminVAppRecord, err error) {
 
     if max_page_size <= 0 {
         max_page_size = 1
@@ -55,7 +55,7 @@ func FindVApps (session *VCloudSession, max_page_size, max_pages int) (VApps []*
     return VApps, nil 
 }
 
-func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (Orgs []*Organisation, err error) {
+func (v *VCloudSession) FindOrganisations (max_page_size, max_pages int) (Orgs []*Organisation, err error) {
 
     if max_page_size <= 0 {
         max_page_size = 1

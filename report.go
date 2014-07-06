@@ -104,7 +104,13 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 
 func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
 
-    for job := range jobs {
+    for {
+        job := <- jobs
+
+        // if OK != true {
+        //     break
+        // }
+
         vdc := &VDCVApp{}
 
         r := v.Get(job.VApp.Href)
@@ -158,10 +164,6 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     results := make(chan *ReportDocument)
     jobs    := make(chan *VAppWorkerJob)
 
-    for i := 1; i <= 10; i++ {
-        go v.VAppReportWorker(jobs)
-    }
-
     vapps, _ := v.FindVApps(max_vapps, max_pages)
     for _, vapp := range vapps {
         waiter.Add(1)
@@ -175,6 +177,10 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
         jobs <- job 
     }
     close(jobs)
+
+    for i := 1; i <= 10; i++ {
+        go v.VAppReportWorker(jobs)
+    }
 
     go func() {
         waiter.Wait()

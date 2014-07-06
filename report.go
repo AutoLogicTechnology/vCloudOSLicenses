@@ -132,7 +132,7 @@ func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
             Unknown:        0,
         }
  
-        for _, vm := range job.VApp.VMs.VM {
+        for _, vm := range vdc.VMs.VM {
             v.Counters.VMs++
 
             if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {

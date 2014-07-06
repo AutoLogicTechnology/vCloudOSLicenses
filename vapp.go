@@ -2,6 +2,8 @@
 package vcloudoslicenses 
 
 import (
+    "log"
+
     "encoding/xml"
     "net/url"
 )
@@ -53,4 +55,6 @@ func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
         u, _ = url.Parse(v1.OperatingSystemSection.Href)
         a.Children[k1].OperatingSystemSection.Href = u.Path
     }
+
+    log.Printf("vApp Selfie: %+v", a)
 }

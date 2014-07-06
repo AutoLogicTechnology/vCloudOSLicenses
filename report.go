@@ -7,7 +7,7 @@ import (
     "time"
     "strconv"
 
-    "log"
+    // "log"
 )
 
 type ReportTotal struct {

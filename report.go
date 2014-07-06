@@ -152,9 +152,8 @@ func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
         }
 
         log.Printf("Report: %+v", report)
-        
+
         job.ResultsChannel <- report
-        job.Waiter.Done()
     }
 }
 
@@ -162,6 +161,12 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     waiter  := &sync.WaitGroup{}
     results := make(chan *ReportDocument)
     jobs    := make(chan *VAppWorkerJob)
+
+    for i := 1; i <= 10; i++ {
+        log.Print("Creating worker...")
+
+        go v.VAppReportWorker(jobs)
+    }
 
     vapps, _ := v.FindVApps(max_vapps, max_pages)
     for _, vapp := range vapps {
@@ -174,10 +179,6 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
         }
 
         jobs <- job 
-    }
-
-    for i := 1; i <= 10; i++ {
-        go v.VAppReportWorker(jobs)
     }
 
     go func() {

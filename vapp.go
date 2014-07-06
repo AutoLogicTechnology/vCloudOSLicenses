@@ -43,7 +43,7 @@ type VDCVApp struct {
     Type        string `xml:"type,attr"`
     Href        string `xml:"href,attr"`
 
-    VMs         *VAppChildren `xml:"Children"`
+    VMs         VAppChildren `xml:"Children"`
 }
 
 func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
@@ -52,12 +52,13 @@ func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
 
     _ = xml.NewDecoder(r.Body).Decode(a)
 
-    for k1, v1 := range a.VMs.VM {
-        u, _ := url.Parse(v1.Href)
-        a.VMs.VM[k1].Href = u.Path 
+    // if a.VMS != nil {
+        for k1, v1 := range a.VMs.VM {
+            u, _ := url.Parse(v1.Href)
+            a.VMs.VM[k1].Href = u.Path 
 
-        u, _ = url.Parse(v1.OperatingSystemSection.Href)
-        a.VMs.VM[k1].OperatingSystemSection.Href = u.Path
-    }
-
+            u, _ = url.Parse(v1.OperatingSystemSection.Href)
+            a.VMs.VM[k1].OperatingSystemSection.Href = u.Path
+        }
+    // }
 }

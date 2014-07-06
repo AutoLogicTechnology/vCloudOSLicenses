@@ -34,11 +34,11 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     for _, link := range job.Organisation.Links {
         if link.Type == "application/vnd.vmware.vcloud.vdc+xml" {
             log.Printf("Found VDC link: %s", link.Href)
-            
+
             vdc := &VDC{}
             vdc.Get(v, link)
 
-            for _, entity := range vdc.ResourceEntities {
+            for _, entity := range vdc.ResourceEntities.ResourceEntity {
                 if entity.Type == "application/vnd.vmware.vcloud.vApp+xml" {
                     vapp := &VApp{}
                     vapp.Get(v, entity)

@@ -16,6 +16,11 @@ type VdcResourceEntity struct {
     Href    string `xml:"href,attr"` 
 }
 
+type VdcResourceEntities struct {
+    XMLName string `xml:"ResourceEntities"`
+    ResourceEntity []*VdcResourceEntity `xml:"ResourceEntity"`
+}
+
 type VDC struct {
     XMLName string `xml:"Vdc"`
 
@@ -25,7 +30,7 @@ type VDC struct {
     Type    string `xml:"type,attr"`
     Href    string `xml:"href,attr"`
 
-    ResourceEntities []*VdcResourceEntity `xml:"ResourceEntities"`
+    ResourceEntities VdcResourceEntities `xml:"ResourceEntities"`
 }
 
 func (v *VDC) Get (session *VCloudSession, org *OrgLink) {

@@ -2,10 +2,10 @@
 package vcloudoslicenses 
 
 import (
-    "strings"
+    // "strings"
     "sync"
-    "time"
-    "strconv"
+    // "time"
+    // "strconv"
 
     "log"
 )

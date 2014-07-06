@@ -57,7 +57,7 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
         log.Printf("i = %v | uri = %s | status code = %v | me = %+v", i, uri, r.StatusCode, o.Records)
     }
 
-    if len(Organisations.Records) <= 0 {
+    if len(Orgs.Records) <= 0 {
     	return &Organisations{}, errors.New("No organisations returned.")
     } else {
     	return Orgs, nil

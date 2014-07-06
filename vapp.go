@@ -1,10 +1,10 @@
 
 package vcloudoslicenses 
 
-import (
-    "encoding/xml"
-    "net/url"
-)
+// import (
+//     "encoding/xml"
+//     "net/url"
+// )
 
 type VAppLinkRecord struct {
     Name    string `xml:"name,attr"`

@@ -2,7 +2,6 @@
 package vcloudoslicenses
 
 import (
-    "log"
     "fmt"
 
     "encoding/xml"
@@ -36,11 +35,7 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
 
     for i := 1; i <= max_pages; i++ {
     	page := &OrgReferences{}
-
         uri := fmt.Sprintf("/api/query?type=organization&format=references&pageSize=%v&page=%v", max_page_size, i)
-
-        log.Printf("Page: %d URI: %s", i, uri)
-
         r := session.Get(uri)
         defer r.Body.Close()
 
@@ -52,9 +47,6 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
      
         for _, v := range page.Records {
             u, _ := url.Parse(v.Href)
-
-            log.Printf("Looking for: %s", u.Path)
-
             r := session.Get(u.Path)
             defer r.Body.Close()
 

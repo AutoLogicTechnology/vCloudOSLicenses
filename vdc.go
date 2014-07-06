@@ -4,8 +4,6 @@ package vcloudoslicenses
 import (
     "encoding/xml"
     "net/url"
-
-    "log"
 )
 
 type VdcResourceEntity struct {
@@ -39,12 +37,8 @@ func (v *VDC) Get (session *VCloudSession, org *OrgLink) {
 
     _ = xml.NewDecoder(r.Body).Decode(v)
 
-    log.Printf("VDC Selfie: %+v", v)
-
     for k, val := range v.ResourceEntities.ResourceEntity {
         u, _ := url.Parse(val.Href)
         v.ResourceEntities.ResourceEntity[k].Href = u.Path
-
-        log.Printf("VDC: %s | Href: %s", v.Name, v.ResourceEntities.ResourceEntity[k].Href)
     }
 }

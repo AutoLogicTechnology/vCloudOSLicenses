@@ -6,8 +6,6 @@ import (
     "sync"
     "time"
     "strconv"
-
-    "log"
 )
 
 type ReportDocument struct {
@@ -33,21 +31,15 @@ type WorkerJob struct {
 func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     for _, link := range job.Organisation.Links {
         if link.Type == "application/vnd.vmware.vcloud.vdc+xml" {
-            log.Printf("Found VDC link: %s", link.Href)
-
             vdc := &VDC{}
             vdc.Get(v, link)
 
             for _, entity := range vdc.ResourceEntities.ResourceEntity {
                 if entity.Type == "application/vnd.vmware.vcloud.vApp+xml" {
-                    log.Printf("Found vApp link: %s", entity.Href)
-
                     vapp := &VDCVApp{}
                     vapp.Get(v, entity)
 
                     for _, vm := range vapp.VMs.VM {
-                        log.Print("Going over VMs...")
-
                         now := time.Now()
                         report := &ReportDocument{
                             Timestamp:      now.String(),
@@ -73,7 +65,6 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                             report.Ubuntu++
                         }
 
-                        log.Printf("Report from worker: %+v", report)
                         job.ResultsChannel <- report
                     }
                 }
@@ -101,11 +92,6 @@ func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report
     waiter.Add(max_organisations)
 
     orgs, _ := FindOrganisations(v, max_organisations, max_pages)
-    // orgs.GetAll(v, "references", max_organisations, max_pages)
-
-    for _, test := range orgs {
-        log.Printf("Organisation: %s", test.Name)
-    }
 
     for _, org := range orgs {
         job := &WorkerJob{

@@ -2,11 +2,8 @@
 package vcloudoslicenses 
 
 import (
-    "log"
-    // "io/ioutil"
-
     "encoding/xml"
-    // "net/url"
+    "net/url"
 )
 
 type VmOS struct {
@@ -46,27 +43,21 @@ type VDCVApp struct {
     Type        string `xml:"type,attr"`
     Href        string `xml:"href,attr"`
 
-    VMs         VAppChildren `xml:"Children"`
+    VMs         *VAppChildren `xml:"Children"`
 }
 
 func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
     r := session.Get(vdc.Href)
     defer r.Body.Close()
 
-    // raw, _ := ioutil.ReadAll(r.Body)
-    // log.Printf("RAW VAPP BODY: %v", string(raw))
-
     _ = xml.NewDecoder(r.Body).Decode(a)
 
-    log.Printf("vApp Children Selfie: %+v", a)
+    for k1, v1 := range a.VMs.VM {
+        u, _ := url.Parse(v1.Href)
+        a.VMs.VM[k1].Href = u.Path 
 
-    // for k1, v1 := range a.Children.Child {
-    //     u, _ := url.Parse(v1.Href)
-    //     a.Children.Child[k1].Href = u.Path 
+        u, _ = url.Parse(v1.OperatingSystemSection.Href)
+        a.VMs.VM[k1].OperatingSystemSection.Href = u.Path
+    }
 
-    //     u, _ = url.Parse(v1.OperatingSystemSection.Href)
-    //     a.Children.Child[k1].OperatingSystemSection.Href = u.Path
-    // }
-
-    // log.Printf("vApp Selfie: %+v", a)
 }

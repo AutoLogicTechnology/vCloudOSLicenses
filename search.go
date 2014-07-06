@@ -45,6 +45,8 @@ func FindVApps (session *VCloudSession, max_page_size, max_pages int) (VApps []*
 
         _ = xml.NewDecoder(r.Body).Decode(vapp)
 
+        log.Printf("VApp Query Page: %+v", vapp)
+
         for k,v := range vapp.Records {
             u, _ := url.Parse(v.Href)
             vapp.Records[k].Href = u.Path

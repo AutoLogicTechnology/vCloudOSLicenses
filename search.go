@@ -7,6 +7,7 @@ import (
 
     "encoding/xml"
     "net/url"
+    "errors"
 )
 
 type OrganisationReference struct {
@@ -36,7 +37,7 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
     for i := 1; i <= max_pages; i++ {
     	o := &Organisations{}
 
-        uri := fmt.Sprintf("/api/query?type=organization&format=%v&pageSize=%v&page=%v", format, max_page_size, i)
+        uri := fmt.Sprintf("/api/query?type=organization&format=references&pageSize=%v&page=%v", max_page_size, i)
         r := session.Get(uri)
         defer r.Body.Close()
 
@@ -56,8 +57,8 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
         log.Printf("i = %v | uri = %s | status code = %v | me = %+v", i, uri, r.StatusCode, o.Records)
     }
 
-    if len(Organisations) <= 0 {
-    	return &Organisations{}, error.New("No organisations returned.")
+    if len(Organisations.Records) <= 0 {
+    	return &Organisations{}, errors.New("No organisations returned.")
     } else {
     	return Orgs, nil
     }

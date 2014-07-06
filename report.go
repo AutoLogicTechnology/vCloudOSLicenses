@@ -171,28 +171,26 @@ func (v *VCloudSession) VAppReportWorker (vapp *AdminVAppRecord, results chan <-
 
     _ = xml.NewDecoder(r.Body).Decode(vdc)
 
-    for k,v := range vdc.VMs.VM {
+    for k,vm := range vdc.VMs.VM {
         u, _ := url.Parse(v.Href)
         vdc.VMs.VM[k].Href = u.Path
-    }
 
-    now := time.Now()
-    report := &ReportDocument{
-        Timestamp:      now.String(),
-        Year:           strconv.Itoa(now.Year()),
-        Month:          now.Month().String(),
-        Day:            strconv.Itoa(now.Day()),
-        Organisation:   vapp.OwnerName,
-        VDC:            vapp.VDCName,
-        VApp:           vapp.Name,
-        MSWindows:      0,
-        RHEL:           0,
-        CentOS:         0,
-        Ubuntu:         0,
-        Unknown:        0,
-    }
+        now := time.Now()
+        report := &ReportDocument{
+            Timestamp:      now.String(),
+            Year:           strconv.Itoa(now.Year()),
+            Month:          now.Month().String(),
+            Day:            strconv.Itoa(now.Day()),
+            Organisation:   vapp.OwnerName,
+            VDC:            vapp.VDCName,
+            VApp:           vapp.Name,
+            MSWindows:      0,
+            RHEL:           0,
+            CentOS:         0,
+            Ubuntu:         0,
+            Unknown:        0,
+        }
 
-    for _, vm := range vdc.VMs.VM {
         v.Counters.VMs++
 
         if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {

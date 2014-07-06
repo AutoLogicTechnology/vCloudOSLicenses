@@ -64,6 +64,12 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
 
             new_org := &Organisation{}
             _ = xml.NewDecoder(r.Body).Decode(new_org)
+
+            for k, val := range new_org.Links {
+                u, _ := url.Parse(val.Href)
+                new_org.Links[k].Href = u.Path
+            }
+
             Orgs = append(Orgs, new_org)
         }
     }

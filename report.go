@@ -40,7 +40,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 
             for _, entity := range vdc.ResourceEntities.ResourceEntity {
                 if entity.Type == "application/vnd.vmware.vcloud.vApp+xml" {
-                    log.Printf("Found vApp link: %s", enity.Href)
+                    log.Printf("Found vApp link: %s", entity.Href)
 
                     vapp := &VApp{}
                     vapp.Get(v, entity)

@@ -52,6 +52,9 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
      
         for _, v := range page.Records {
             u, _ := url.Parse(v.Href)
+
+            log.Printf("Looking for: %s", u.Path)
+
             r := session.Get(u.Path)
             defer r.Body.Close()
 

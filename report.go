@@ -167,11 +167,11 @@ func (v *VCloudSession) VAppReportWorker (vapp *AdminVAppRecord, results chan <-
     r := v.Get(vapp.Href)
     defer r.Body.Close()
 
+    log.Printf("Report Worker status code: %d", r.StatusCode)
+
     if r.StatusCode != 200 {
         return 
     }
-
-    log.Print("Report Worker working after 200...")
 
     now := time.Now()
     report := &ReportDocument{

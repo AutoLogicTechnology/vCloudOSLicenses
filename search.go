@@ -49,7 +49,7 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
         _ = xml.NewDecoder(r.Body).Decode(page)
      
         for _, v := range page.Records {
-            u, _ := url.Parse(v.Href)
+            u, _ := url.Parse(v.Href).Path
             r 	 := session.Get(u)
             defer r.Body.Close()
 

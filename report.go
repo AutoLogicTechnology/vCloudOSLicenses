@@ -6,8 +6,6 @@ import (
     "sync"
     "time"
     "strconv"
-
-    // "log"
 )
 
 type ReportDocument struct {
@@ -41,8 +39,6 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     vapp := &VDCVApp{}
                     vapp.Get(v, entity)
 
-                    // log.Printf("vApp Selfie: %+v", vapp)
-
                     now := time.Now()
                     report := &ReportDocument{
                         Timestamp:      now.String(),
@@ -59,7 +55,6 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     }
 
                     for _, vm := range vapp.VMs.VM {
-                        // log.Printf("vApp VM Selfie: %+v", vm)
                         if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
                             report.MSWindows++
                         } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {

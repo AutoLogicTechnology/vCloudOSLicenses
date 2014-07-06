@@ -24,6 +24,8 @@ type OrgReferences struct {
 
 func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (Orgs []*Organisation, err error) {
 
+	Orgs = []*Organisation{}
+
     if max_page_size <= 0 {
         max_page_size = 1
     }
@@ -49,8 +51,8 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
         _ = xml.NewDecoder(r.Body).Decode(page)
      
         for _, v := range page.Records {
-            u, _ := url.Parse(v.Href).Path
-            r 	 := session.Get(u)
+            u := url.Parse(v.Href).Path
+            r := session.Get(u)
             defer r.Body.Close()
 
             if r.StatusCode != 200 {

@@ -18,7 +18,7 @@ type VmOS struct {
     OSType      string `xml:"osType,attr"`
 }
 
-type Vm struct {
+type VAppVm struct {
     XMLName     string `xml:"Vm"`
 
     Deployed    string `xml:"deployed,attr"`
@@ -33,10 +33,10 @@ type Vm struct {
 
 type VAppChildren struct {
     XMLName     string `xml:"Children"`
-    VM          []*Vm `xml:"Vm"`
+    VM          []*VAppVm `xml:"Vm"`
 }
 
-type VApp struct {
+type VDCVApp struct {
     XMLName     string `xml:"VApp"`
 
     Deployed    string `xml:"deployed,attr"`
@@ -49,7 +49,7 @@ type VApp struct {
     VMs         *VAppChildren `xml:"Children"`
 }
 
-func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
+func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
     r := session.Get(vdc.Href)
     defer r.Body.Close()
 

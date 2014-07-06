@@ -104,8 +104,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 
 func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
 
-    for {
-        job := <- jobs
+    for job := range jobs {
 
         // if OK != true {
         //     break

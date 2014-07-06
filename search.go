@@ -24,8 +24,6 @@ type OrgReferences struct {
 
 func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (Orgs []*Organisation, err error) {
 
-	Orgs = []&Organisation{}
-
     if max_page_size <= 0 {
         max_page_size = 1
     }
@@ -68,7 +66,7 @@ func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (O
     }
 
     if len(Orgs.Records) <= 0 {
-    	return []&Organisations{}, errors.New("No organisations returned.")
+    	return Orgs, errors.New("No organisations returned.")
     } else {
     	return Orgs, nil
     }

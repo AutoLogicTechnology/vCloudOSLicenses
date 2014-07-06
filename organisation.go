@@ -1,14 +1,6 @@
 
 package vcloudoslicenses 
 
-import (
-    "log"
-    "fmt"
-
-    "encoding/xml"
-    "net/url"
-)
-
 type OrgLink struct {
     XMLName     string `xml:"Link"`
 

@@ -95,9 +95,8 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     job.Waiter.Done() 
 }
 
-func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (report []*VAppQueryResultsRecords) {
+func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (results []*AdminVAppRecord) {
     results, _ := FindVApps(v, max_vapps, max_pages)
-
     return results 
 }
 

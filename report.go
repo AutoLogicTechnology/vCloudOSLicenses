@@ -165,7 +165,7 @@ func (v *VCloudSession) VAppReportWorker (vapp *AdminVAppRecord, results chan <-
     defer r.Body.Close()
 
     if r.StatusCode != 200 {
-        continue 
+        return 
     }
 
     _ = xml.NewDecoder(r.Body).Decode(vdc)

@@ -10,6 +10,12 @@ import (
     "log"
 )
 
+type ReportTotal struct {
+    VDCs            uint 
+    VApps           uint 
+    VMs             uint
+}
+
 type ReportDocument struct {
     Timestamp       string 
     Year            string 
@@ -23,6 +29,8 @@ type ReportDocument struct {
     CentOS          uint 
     Ubuntu          uint 
     Unknown         uint
+
+    Totals          ReportTotal
 }
 
 type WorkerJob struct {
@@ -32,20 +40,16 @@ type WorkerJob struct {
 }
 
 func (v *VCloudSession) ReportWorker (job *WorkerJob) {
-    var vdc_counter uint 
-    var vapp_counter uint 
-    var vm_counter uint 
-
     for _, link := range job.Organisation.Links {
         if link.Type == "application/vnd.vmware.vcloud.vdc+xml" {
-            vdc_counter++
+            v.Counters.VDCs++
 
             vdc := &VDC{}
             vdc.Get(v, link)
 
             for _, entity := range vdc.ResourceEntities.ResourceEntity {
                 if entity.Type == "application/vnd.vmware.vcloud.vApp+xml" {
-                    vapp_counter++
+                    v.Counters.VApps++
 
                     vapp := &VDCVApp{}
                     vapp.Get(v, entity)
@@ -67,7 +71,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     }
 
                     for _, vm := range vapp.VMs.VM {
-                        vm_counter++
+                        v.Counters.VMs++
 
                         if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
                             report.MSWindows++
@@ -109,8 +113,7 @@ func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report
     waiter.Add(max_organisations)
 
     orgs, _ := FindOrganisations(v, max_organisations, max_pages)
-
-    log.Printf("Orgs Count: %d", len(orgs))
+    v.Counters.Orgs = len(orgs)
 
     for _, org := range orgs {
         job := &WorkerJob{

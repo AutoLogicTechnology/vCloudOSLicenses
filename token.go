@@ -9,6 +9,13 @@ import (
     "encoding/base64"
 )
 
+type SessionCounter struct {
+    Orgs    uint 
+    VDCs    uint 
+    VApps   uint 
+    VMs     uint 
+}
+
 type VCloudSession struct {
     Host            string 
     Username        string 
@@ -18,6 +25,8 @@ type VCloudSession struct {
     Transport       *http.Transport
     Token           string
     Accessible      bool
+
+    Counters        SessionCounter
 }
 
 func (v *VCloudSession) Login () {

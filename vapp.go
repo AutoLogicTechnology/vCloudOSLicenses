@@ -30,6 +30,11 @@ type Vm struct {
     OperatingSystemSection *VmOS `xml:"OperatingSystemSection"`
 }
 
+type VAppChildren struct {
+    XMLName     string `xml:"Children"`
+    Child       []*Vm `xml:"Vm"`
+}
+
 type VApp struct {
     XMLName     string `xml:"VApp"`
 
@@ -40,7 +45,7 @@ type VApp struct {
     Type        string `xml:"deployed,attr"`
     Href        string `xml:"deployed,attr"`
 
-    Children    []*Vm `xml:"Children"`
+    Children    *VAppChildren `xml:"Children"`
 }
 
 func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {

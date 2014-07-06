@@ -1,6 +1,14 @@
 
 package vcloudoslicenses
 
+import (
+    "log"
+    "fmt"
+
+    "encoding/xml"
+    "net/url"
+)
+
 type OrganisationReference struct {
     XMLName string `xml:"OrgReference"`
     Name    string `xml:"name,attr"`

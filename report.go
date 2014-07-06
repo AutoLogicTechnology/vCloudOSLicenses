@@ -107,7 +107,7 @@ func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report
 
     waiter.Add(max_organisations)
 
-    orgs := FindOrganisations(v, 10, 1)
+    orgs, _ := FindOrganisations(v, 10, 1)
     // orgs.GetAll(v, "references", max_organisations, max_pages)
 
     log.Printf("Orgs: %+v", orgs)

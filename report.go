@@ -171,6 +171,8 @@ func (v *VCloudSession) VAppReportWorker (vapp *AdminVAppRecord, results chan <-
         return 
     }
 
+    log.Print("Report Worker working after 200...")
+
     now := time.Now()
     report := &ReportDocument{
         Timestamp:      now.String(),

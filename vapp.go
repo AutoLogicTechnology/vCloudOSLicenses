@@ -50,7 +50,7 @@ func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
         u, _ := url.Parse(v1.Href)
         a.Children[k1].Href = u.Path 
 
-        u, _ := url.Parse(v1.OperatingSystemSection.Href)
+        u, _ = url.Parse(v1.OperatingSystemSection.Href)
         a.Children[k1].OperatingSystemSection.Href = u.Path
     }
 }

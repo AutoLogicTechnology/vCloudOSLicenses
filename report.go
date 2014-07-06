@@ -35,7 +35,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     log.Print("Going over VDCs...")
 
     for _, link := range job.Organisation.Links {
-        if link.Type = "application/vnd.vmware.vcloud.vdc+xml" {
+        if link.Type == "application/vnd.vmware.vcloud.vdc+xml" {
             vdc := &VDC{}
             vdc.Get(v, link)
 

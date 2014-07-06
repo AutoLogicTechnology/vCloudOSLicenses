@@ -12,9 +12,9 @@ import (
 type VmOS struct {
     XMLName     string `xml:"OperatingSystemSection"`
 
-    Id          string `xml:"deployed,attr"`
-    Type        string `xml:"deployed,attr"`
-    Href        string `xml:"deployed,attr"`
+    Id          string `xml:"id,attr"`
+    Type        string `xml:"type,attr"`
+    Href        string `xml:"href,attr"`
     OSType      string `xml:"osType,attr"`
 }
 
@@ -22,11 +22,11 @@ type VAppVm struct {
     XMLName     string `xml:"Vm"`
 
     Deployed    string `xml:"deployed,attr"`
-    Status      string `xml:"deployed,attr"`
-    Name        string `xml:"deployed,attr"`
-    Id          string `xml:"deployed,attr"`
-    Type        string `xml:"deployed,attr"`
-    Href        string `xml:"deployed,attr"`
+    Status      string `xml:"status,attr"`
+    Name        string `xml:"name,attr"`
+    Id          string `xml:"id,attr"`
+    Type        string `xml:"type,attr"`
+    Href        string `xml:"href,attr"`
 
     OperatingSystemSection *VmOS `xml:"OperatingSystemSection"`
 }
@@ -40,11 +40,11 @@ type VDCVApp struct {
     XMLName     string `xml:"VApp"`
 
     Deployed    string `xml:"deployed,attr"`
-    Status      string `xml:"deployed,attr"`
-    Name        string `xml:"deployed,attr"`
-    Id          string `xml:"deployed,attr"`
-    Type        string `xml:"deployed,attr"`
-    Href        string `xml:"deployed,attr"`
+    Status      string `xml:"status,attr"`
+    Name        string `xml:"name,attr"`
+    Id          string `xml:"id,attr"`
+    Type        string `xml:"type,attr"`
+    Href        string `xml:"href,attr"`
 
     VMs         VAppChildren `xml:"Children"`
 }

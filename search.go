@@ -35,7 +35,7 @@ func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*Admin
         vapp := &VAppQueryResultsRecords{}
         uri := fmt.Sprintf("/api/query?type=adminVApp&pageSize=%v&page=%v", max_page_size, i)
 
-        r := session.Get(uri)
+        r := v.Get(uri)
         defer r.Body.Close()
 
         if r.StatusCode == 400 {
@@ -48,7 +48,7 @@ func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*Admin
             vapp.Records[k].Href = u.Path
 
             VApps = append(VApps, v)
-            session.Counters.VApps++
+            v.Counters.VApps++
         }
     }
 

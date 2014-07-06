@@ -103,7 +103,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 
 func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
 
-    for job := jobs {
+    for job := range jobs {
         log.Printf("Job: %+v", job)
         now := time.Now()
         report := &ReportDocument{
@@ -151,10 +151,10 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     jobs    := make(chan *VAppWorkerJob)
 
     for i := 1; i <= 10; i++ {
-        go v.VAppReportWorker()
+        go v.VAppReportWorker(jobs)
     }
 
-    vapps, _ = v.FindVApps(max_vapps, max_pages)
+    vapps, _ := v.FindVApps(max_vapps, max_pages)
     for _, vapp := range vapps {
         job := &VAppWorkerJob{
             Waiter:         waiter,

@@ -6,6 +6,8 @@ import (
     "sync"
     "time"
     "strconv"
+
+    "log"
 )
 
 type ReportDocument struct {
@@ -39,7 +41,11 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     vapp := &VDCVApp{}
                     vapp.Get(v, entity)
 
+                    log.Printf("vApp Selfie: %+v", vapp)
+
                     for _, vm := range vapp.VMs.VM {
+                        log.Printf("vApp VM Selfie: %+v", vm)
+                        
                         now := time.Now()
                         report := &ReportDocument{
                             Timestamp:      now.String(),

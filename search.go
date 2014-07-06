@@ -43,11 +43,11 @@ func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*Admin
         }
 
         _ = xml.NewDecoder(r.Body).Decode(vapp)
-        for k,v := range vapp.Records {
-            u, _ := url.Parse(v.Href)
+        for k,record := range vapp.Records {
+            u, _ := url.Parse(record.Href)
             vapp.Records[k].Href = u.Path
 
-            VApps = append(VApps, v)
+            VApps = append(VApps, record)
             v.Counters.VApps++
         }
     }

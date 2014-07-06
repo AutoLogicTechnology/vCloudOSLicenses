@@ -6,8 +6,9 @@ import (
     "sync"
     "time"
     "strconv"
+    "encoding/xml"
 
-    "log"
+    // "log"
 )
 
 type ReportTotal struct {
@@ -122,7 +123,7 @@ func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
             Month:          now.Month().String(),
             Day:            strconv.Itoa(now.Day()),
             Organisation:   job.VApp.OwnerName,
-            VDC:            job.VApp.VdcName,
+            VDC:            job.VApp.VDCName,
             VApp:           job.VApp.Name,
             MSWindows:      0,
             RHEL:           0,
@@ -131,7 +132,7 @@ func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
             Unknown:        0,
         }
  
-        for _, vm := range vapp.VMs.VM {
+        for _, vm := range job.VApp.VMs.VM {
             v.Counters.VMs++
 
             if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
@@ -148,15 +149,12 @@ func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
         }
 
         job.ResultsChannel <- report
+        job.Waiter.Done()
     }
-
-    job.Waiter.Done()
 }
 
 func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*ReportDocument) {
     waiter  := &sync.WaitGroup{}
-    waiter.Add(10)
-
     results := make(chan *ReportDocument)
     jobs    := make(chan *VAppWorkerJob)
 
@@ -166,6 +164,8 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
 
     vapps, _ := v.FindVApps(max_vapps, max_pages)
     for _, vapp := range vapps {
+        waiter.Add(1)
+
         job := &VAppWorkerJob{
             Waiter:         waiter,
             ResultsChannel: results,

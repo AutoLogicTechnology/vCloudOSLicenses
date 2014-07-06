@@ -54,7 +54,7 @@ func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
 
     _ = xml.NewDecoder(r.Body).Decode(a)
 
-    log.Printf("vApp Children Selfie: %+v", a.Children.Child)
+    log.Printf("vApp Children Selfie: %+v", a.Children)
 
     for k1, v1 := range a.Children.Child {
         u, _ := url.Parse(v1.Href)

@@ -210,7 +210,7 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     vapps, _ := v.FindVApps(max_vapps, max_pages)
 
     for _, vapp := range vapps {
-        go VAppReportWorker(vapp, results)
+        go v.VAppReportWorker(vapp, results)
     }
 
     for result := range results {

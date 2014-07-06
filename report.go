@@ -27,52 +27,58 @@ type ReportDocument struct {
 type WorkerJob struct {
     Waiter          *sync.WaitGroup
     ResultsChannel  chan <- *ReportDocument
-    Organisation    *OrgReference
+    Organisation    *Organisation
 }
 
 func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     log.Print("Inside the worker...")
     log.Print("Going over VDCs...")
 
-    vdc := &VDC{}
-    vdc.Get(v, job.Organisation)
+    for _, link := range job.Organisation.Links {
+        if link.Type = "application/vnd.vmware.vcloud.vdc+xml" {
+            vdc := &VDC{}
+            vdc.Get(v, link)
 
-    for _, entity := range vdc.ResourceEntities {
-        log.Print("Going over vApps...")
+            for _, entity := range vdc.ResourceEntities {
+                if entity.Type == "application/vnd.vmware.vcloud.vApp+xml" {
+                    log.Print("Going over vApps...")
 
-        vapp := &VApp{}
-        vapp.Get(v, entity)   
+                    vapp := &VApp{}
+                    vapp.Get(v, entity)
 
-        for _, vm := range vapp.Children {
-            log.Print("Going over VMs...")
+                    for _, vm := range vapp.Children {
+                        log.Print("Going over VMs...")
 
-            now := time.Now()
-            report := &ReportDocument{
-                Timestamp:      now.String(),
-                Year:           strconv.Itoa(now.Year()),
-                Month:          now.Month().String(),
-                Day:            strconv.Itoa(now.Day()),
-                Organisation:   job.Organisation.Name,
-                VDC:            vdc.Name,
-                VApp:           vapp.Name,
-                MSWindows:      0,
-                RHEL:           0,
-                CentOS:         0,
-                Ubuntu:         0,
+                        now := time.Now()
+                        report := &ReportDocument{
+                            Timestamp:      now.String(),
+                            Year:           strconv.Itoa(now.Year()),
+                            Month:          now.Month().String(),
+                            Day:            strconv.Itoa(now.Day()),
+                            Organisation:   job.Organisation.Name,
+                            VDC:            vdc.Name,
+                            VApp:           vapp.Name,
+                            MSWindows:      0,
+                            RHEL:           0,
+                            CentOS:         0,
+                            Ubuntu:         0,
+                        }
+
+                        if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
+                            report.MSWindows++
+                        } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
+                            report.RHEL++
+                        } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
+                            report.CentOS++
+                        } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
+                            report.Ubuntu++
+                        }
+
+                        log.Printf("Report from worker: %+v", report)
+                        job.ResultsChannel <- report
+                    }
+                }
             }
-
-            if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
-                report.MSWindows++
-            } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
-                report.RHEL++
-            } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
-                report.CentOS++
-            } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
-                report.Ubuntu++
-            }
-
-            log.Printf("Report from worker: %+v", report)
-            job.ResultsChannel <- report
         }
     }
 

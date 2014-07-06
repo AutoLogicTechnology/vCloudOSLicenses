@@ -6,7 +6,7 @@ import (
     "net/url"
 )
 
-type ResourceEntity struct {
+type VdcResourceEntity struct {
     XMLName string `xml:"ResourceEntity"`
 
     Name    string `xml:"name,attr"`
@@ -23,23 +23,17 @@ type VDC struct {
     Type    string `xml:"type,attr"`
     Href    string `xml:"href,attr"`
 
-    ResourceEntities []*ResourceEntity `xml:"ResourceEntities"`
+    ResourceEntities []*VdcResourceEntity `xml:"ResourceEntities"`
 }
 
-func (v *VDC) Get (session *VCloudSession, org *Organisation) {
-    for link := range org.Links {
-        if link.Type == "application/vnd.vmware.vcloud.vdc+xml" {
-            r := session.Get(link.Href)
-            defer r.Body.Close()
+func (v *VDC) Get (session *VCloudSession, org *OrgLink) {
+    r := session.Get(org.Href)
+    defer r.Body.Close()
 
-            _ = xml.NewDecoder(r.Body).Decode(v)
+    _ = xml.NewDecoder(r.Body).Decode(v)
 
-            for k, val := range v.ResourceEntities {
-                u, _ := url.Parse(val.Href)
-                v.ResourceEntities[k].Href = u.Path
-            }
-
-            break
-        }
-    }    
+    for k, val := range v.ResourceEntities {
+        u, _ := url.Parse(val.Href)
+        v.ResourceEntities[k].Href = u.Path
+    }
 }

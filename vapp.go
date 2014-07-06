@@ -41,22 +41,16 @@ type VApp struct {
     Children    []*Vm `xml:"Children"`
 }
 
-func (a *VApp) Get (session *VCloudSession, vdc *VDC) {
-    for entity := range vdc.ResourceEntities {
-        if entity.Type == "application/vnd.vmware.vcloud.vApp+xml" {
-            r := session.Get(entity.Href)
-            defer r.Body.Close()
+func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
+    r := session.Get(vdc.Href)
+    defer r.Body.Close()
 
-            _ = xml.NewDecoder(r.Body).Decode(a)
-            for k1, v1 := range a.Children {
-                u, _ := url.Parse(v1.Href)
-                a.Children[k1].Href = u.Path 
+    _ = xml.NewDecoder(r.Body).Decode(a)
+    for k1, v1 := range a.Children {
+        u, _ := url.Parse(v1.Href)
+        a.Children[k1].Href = u.Path 
 
-                u, _ := url.Parse(v1.OperatingSystemSection.Href)
-                a.Children[k1].OperatingSystemSection.Href = u.Path
-            }
-
-            break
-        }
+        u, _ := url.Parse(v1.OperatingSystemSection.Href)
+        a.Children[k1].OperatingSystemSection.Href = u.Path
     }
 }

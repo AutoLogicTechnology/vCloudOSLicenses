@@ -46,7 +46,7 @@ type VDCVApp struct {
     Type        string `xml:"deployed,attr"`
     Href        string `xml:"deployed,attr"`
 
-    VMs         *VAppChildren `xml:"Children"`
+    VMs         VAppChildren `xml:"Children"`
 }
 
 func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {

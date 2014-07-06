@@ -162,6 +162,8 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 func (v *VCloudSession) VAppReportWorker (vapp *AdminVAppRecord, results chan <- *ReportDocument) {
     vdc := &VDCVApp{}
 
+    log.Print("Report Worker working...")
+
     r := v.Get(vapp.Href)
     defer r.Body.Close()
 

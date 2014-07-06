@@ -172,7 +172,7 @@ func (v *VCloudSession) VAppReportWorker (vapp *AdminVAppRecord, results chan <-
     _ = xml.NewDecoder(r.Body).Decode(vdc)
 
     for k,vm := range vdc.VMs.VM {
-        u, _ := url.Parse(v.Href)
+        u, _ := url.Parse(vm.Href)
         vdc.VMs.VM[k].Href = u.Path
 
         now := time.Now()

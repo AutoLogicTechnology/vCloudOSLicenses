@@ -7,7 +7,7 @@ import (
     "time"
     "strconv"
 
-    "log"
+    // "log"
 )
 
 type ReportDocument struct {
@@ -41,26 +41,25 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     vapp := &VDCVApp{}
                     vapp.Get(v, entity)
 
-                    log.Printf("vApp Selfie: %+v", vapp)
+                    // log.Printf("vApp Selfie: %+v", vapp)
+
+                    now := time.Now()
+                    report := &ReportDocument{
+                        Timestamp:      now.String(),
+                        Year:           strconv.Itoa(now.Year()),
+                        Month:          now.Month().String(),
+                        Day:            strconv.Itoa(now.Day()),
+                        Organisation:   job.Organisation.Name,
+                        VDC:            vdc.Name,
+                        VApp:           vapp.Name,
+                        MSWindows:      0,
+                        RHEL:           0,
+                        CentOS:         0,
+                        Ubuntu:         0,
+                    }
 
                     for _, vm := range vapp.VMs.VM {
-                        log.Printf("vApp VM Selfie: %+v", vm)
-
-                        now := time.Now()
-                        report := &ReportDocument{
-                            Timestamp:      now.String(),
-                            Year:           strconv.Itoa(now.Year()),
-                            Month:          now.Month().String(),
-                            Day:            strconv.Itoa(now.Day()),
-                            Organisation:   job.Organisation.Name,
-                            VDC:            vdc.Name,
-                            VApp:           vapp.Name,
-                            MSWindows:      0,
-                            RHEL:           0,
-                            CentOS:         0,
-                            Ubuntu:         0,
-                        }
-
+                        // log.Printf("vApp VM Selfie: %+v", vm)
                         if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
                             report.MSWindows++
                         } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {

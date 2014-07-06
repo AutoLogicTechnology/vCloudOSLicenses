@@ -20,6 +20,7 @@ type ReportDocument struct {
     RHEL            uint 
     CentOS          uint 
     Ubuntu          uint 
+    Unknown         uint
 }
 
 type WorkerJob struct {

@@ -3,6 +3,7 @@ package vcloudoslicenses
 
 import (
     "log"
+    "io/ioutil"
 
     "encoding/xml"
     "net/url"
@@ -51,6 +52,8 @@ type VApp struct {
 func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
     r := session.Get(vdc.Href)
     defer r.Body.Close()
+
+    log.Printf("RAW VAPP BODY: %v", ioutil.ReadAll(r.Body))
 
     _ = xml.NewDecoder(r.Body).Decode(a)
 

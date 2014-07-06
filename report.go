@@ -96,7 +96,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 }
 
 func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (results []*AdminVAppRecord) {
-    results, _ := FindVApps(v, max_vapps, max_pages)
+    results, _ = FindVApps(v, max_vapps, max_pages)
     return results 
 }
 

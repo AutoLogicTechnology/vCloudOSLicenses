@@ -41,10 +41,10 @@ func (v *VDC) Get (session *VCloudSession, org *OrgLink) {
 
     log.Printf("VDC Selfie: %+v", v)
 
-    for k, val := range v.ResourceEntities {
+    for k, val := range v.ResourceEntities.ResourceEntity {
         u, _ := url.Parse(val.Href)
-        v.ResourceEntities[k].Href = u.Path
+        v.ResourceEntities.ResourceEntity[k].Href = u.Path
 
-        log.Printf("VDC: %s | Href: %s", v.Name, v.ResourceEntities[k].Href)
+        log.Printf("VDC: %s | Href: %s", v.Name, v.ResourceEntities.ResourceEntity[k].Href)
     }
 }

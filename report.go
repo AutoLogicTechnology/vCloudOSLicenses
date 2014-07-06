@@ -183,10 +183,10 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     }
     close(jobs)
 
-    go func() {
-        waiter.Wait()
-        close(results)
-    }()
+    // go func() {
+    //     waiter.Wait()
+    //     close(results)
+    // }()
 
     for report := range results {
         reports = append(reports, report)

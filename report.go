@@ -169,27 +169,26 @@ func (v *VCloudSession) VAppReportWorker (vapp *AdminVAppRecord, results chan <-
         return 
     }
 
-    _ = xml.NewDecoder(r.Body).Decode(vdc)
+    now := time.Now()
+    report := &ReportDocument{
+        Timestamp:      now.String(),
+        Year:           strconv.Itoa(now.Year()),
+        Month:          now.Month().String(),
+        Day:            strconv.Itoa(now.Day()),
+        Organisation:   vapp.OwnerName,
+        VDC:            vapp.VDCName,
+        VApp:           vapp.Name,
+        MSWindows:      0,
+        RHEL:           0,
+        CentOS:         0,
+        Ubuntu:         0,
+        Unknown:        0,
+    }
 
+    _ = xml.NewDecoder(r.Body).Decode(vdc)
     for k,vm := range vdc.VMs.VM {
         u, _ := url.Parse(vm.Href)
         vdc.VMs.VM[k].Href = u.Path
-
-        now := time.Now()
-        report := &ReportDocument{
-            Timestamp:      now.String(),
-            Year:           strconv.Itoa(now.Year()),
-            Month:          now.Month().String(),
-            Day:            strconv.Itoa(now.Day()),
-            Organisation:   vapp.OwnerName,
-            VDC:            vapp.VDCName,
-            VApp:           vapp.Name,
-            MSWindows:      0,
-            RHEL:           0,
-            CentOS:         0,
-            Ubuntu:         0,
-            Unknown:        0,
-        }
 
         v.Counters.VMs++
 

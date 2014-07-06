@@ -53,7 +53,8 @@ func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
     r := session.Get(vdc.Href)
     defer r.Body.Close()
 
-    log.Printf("RAW VAPP BODY: %v", ioutil.ReadAll(r.Body))
+    raw, _ := ioutil.ReadAll(r.Body)
+    log.Printf("RAW VAPP BODY: %v", raw)
 
     _ = xml.NewDecoder(r.Body).Decode(a)
 

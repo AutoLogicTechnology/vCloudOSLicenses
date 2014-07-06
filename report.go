@@ -6,6 +6,8 @@ import (
     "sync"
     "time"
     "strconv"
+
+    "log"
 )
 
 type ReportDocument struct {
@@ -30,13 +32,21 @@ type WorkerJob struct {
 }
 
 func (v *VCloudSession) ReportWorker (job *WorkerJob) {
+    var vdc_counter uint 
+    var vapp_counter uint 
+    var vm_counter uint 
+
     for _, link := range job.Organisation.Links {
         if link.Type == "application/vnd.vmware.vcloud.vdc+xml" {
+            vdc_counter++
+
             vdc := &VDC{}
             vdc.Get(v, link)
 
             for _, entity := range vdc.ResourceEntities.ResourceEntity {
                 if entity.Type == "application/vnd.vmware.vcloud.vApp+xml" {
+                    vapp_counter++
+
                     vapp := &VDCVApp{}
                     vapp.Get(v, entity)
 
@@ -57,6 +67,8 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
                     }
 
                     for _, vm := range vapp.VMs.VM {
+                        vm_counter++
+
                         if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
                             report.MSWindows++
                         } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
@@ -76,6 +88,7 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
         }
     }
 
+    log.Printf("VDCs: %d, vApps: %d, and VMs: %d", vdc_counter, vapp_counter, vm_counter)
     job.Waiter.Done() 
 }
 
@@ -96,6 +109,8 @@ func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report
     waiter.Add(max_organisations)
 
     orgs, _ := FindOrganisations(v, max_organisations, max_pages)
+
+    log.Printf("Orgs Count: %d", len(orgs))
 
     for _, org := range orgs {
         job := &WorkerJob{

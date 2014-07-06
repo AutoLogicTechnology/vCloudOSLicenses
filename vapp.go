@@ -52,6 +52,8 @@ func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
     r := session.Get(vdc.Href)
     defer r.Body.Close()
 
+    log.Printf("vApp Children Selfie: %+v", a.Children.Child)
+
     _ = xml.NewDecoder(r.Body).Decode(a)
     for k1, v1 := range a.Children.Child {
         u, _ := url.Parse(v1.Href)
@@ -61,5 +63,5 @@ func (a *VApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
         a.Children.Child[k1].OperatingSystemSection.Href = u.Path
     }
 
-    log.Printf("vApp Selfie: %+v", a)
+    // log.Printf("vApp Selfie: %+v", a)
 }

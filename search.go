@@ -40,13 +40,15 @@ func FindVApps (session *VCloudSession, max_page_size, max_pages int) (VApps []*
 
         _ = xml.NewDecoder(r.Body).Decode(vapp)
 
-        for k,v := vapp.Records {
+        for k,v := range vapp.Records {
             u, _ := url.Parse(v.Href)
-            vapps.Records[k].Href = u.Path
+            vapp.Records[k].Href = u.Path
         }
 
         VApps = append(VApps, vapp)
     }
+
+    return VApps, nil 
 }
 
 func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (Orgs []*Organisation, err error) {

@@ -38,6 +38,10 @@ func FindVApps (session *VCloudSession, max_page_size, max_pages int) (VApps []*
         r := session.Get(uri)
         defer r.Body.Close()
 
+        if r.StatusCode == 400 {
+            break
+        }
+
         _ = xml.NewDecoder(r.Body).Decode(vapp)
 
         for k,v := range vapp.Records {

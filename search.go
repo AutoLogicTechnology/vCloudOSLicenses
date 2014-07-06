@@ -21,6 +21,34 @@ type OrgReferences struct {
     Records     []*OrgReference `xml:"OrgReference"`
 }
 
+func FindVApps (session *VCloudSession, max_page_size, max_pages int) (VApps []*VAppQueryResultsRecords, err error) {
+
+    if max_page_size <= 0 {
+        max_page_size = 1
+    }
+
+    if max_pages <= 0 {
+        max_pages = 1
+    }
+
+    for i := 1; i <= max_pages; i++ {
+        vapp := &VAppQueryResultsRecords{}
+        uri := fmt.Sprintf("/api/query?type=adminVApp&pageSize=%v&page=%v", max_page_size, i)
+
+        r := session.Get(uri)
+        defer r.Body.Close()
+
+        _ = xml.NewDecoder(r.Body).Decode(vapp)
+
+        for k,v := vapp.Records {
+            u, _ := url.Parse(v.Href)
+            vapps.Records[k].Href = u.Path
+        }
+
+        VApps = append(VApps, vapp)
+    }
+}
+
 func FindOrganisations (session *VCloudSession, max_page_size, max_pages int) (Orgs []*Organisation, err error) {
 
     if max_page_size <= 0 {

@@ -6,6 +6,37 @@ import (
     "net/url"
 )
 
+// QueryResultsRecords stuff below.
+
+// <AdminVAppRecord vdcName="HMRC-MCTP-QA-IL2-STD-F-2 (IL2-PROD-STANDARD)" vdc="https://api.vcd.portal.skyscapecloud.com/api/vdc/71535bab-2731-42d8-84e2-2582573b3681" storageKB="41943040" status="POWERED_ON" ownerName="436.62.027659" org="https://api.vcd.portal.skyscapecloud.com/api/org/60a0dcac-f5c6-4e4d-bdbb-3a06586011b3" numberOfVMs="1" name="qa-app-1" memoryAllocationMB="16384" isVdcEnabled="true" isInMaintenanceMode="false" isExpired="false" isEnabled="true" isDeployed="true" isBusy="false" creationDate="2013-12-16T14:58:45.553Z" cpuAllocationMhz="4" href="https://api.vcd.portal.skyscapecloud.com/api/vApp/vapp-0022a90d-2535-4a12-8115-7c6e84e1d988" honorBootOrder="true" pvdcHighestSupportedHardwareVersion="8" cpuAllocationInMhz="8000" taskStatus="success" lowestHardwareVersionInVApp="8" task="https://api.vcd.portal.skyscapecloud.com/api/task/06a7386e-aca9-4a34-a56c-f06d9bf17926" numberOfCpus="4" taskStatusName="vappDeploy"/>
+
+type AdminVAppRecord struct {
+    XMLName string `xml:"AdminVAppRecord"`
+
+    VDCName             string `xml:"vdcName"`
+    VDC                 string `xml:"vdc"`
+    StorageKB           string `xml:"storageKB"`
+    Status              string `xml:"status"`
+    OwnerName           string `xml:"ownerName"`
+    Org                 string `xml:"org"`
+    NumberOfVMs         string `xml:"numberOfVMs"`
+    Name                string `xml:"name"`
+    MemoryAllocationMB  string `xml:"memoryAllocationMB"`
+    IsExpired           string `xml:"isExpired"`
+    IsEnabled           string `xml:"isEnabled"`
+    IsDeployed          string `xml:"isDeployed"`
+    CreationDate        string `xml:"creationDate"`
+    Href                string `xml:"href"`
+    NumberOfCpus        string `xml:"numberOfCpus"`
+}
+
+type VAppQueryResultsRecords struct {
+    XMLName string `xml:"QueryResultRecords"`
+    Records []*AdminVAppRecord `xml:"AdminVAppRecord"`
+}
+
+// VDC VApp stuff below.
+
 type VmOS struct {
     XMLName     string `xml:"OperatingSystemSection"`
 

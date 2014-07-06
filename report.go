@@ -95,6 +95,10 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     job.Waiter.Done() 
 }
 
+func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (report []*VAppQueryResultsRecords) {
+    return FindVApps(v, max_vapps, max_pages)
+}
+
 func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report []*ReportDocument) {
     var reports []*ReportDocument
     

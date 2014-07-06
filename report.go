@@ -7,6 +7,7 @@ import (
     "time"
     "strconv"
     "encoding/xml"
+    "net/url"
 
     "log"
 )
@@ -169,6 +170,11 @@ func (v *VCloudSession) VAppReportWorker (vapp *AdminVAppRecord, results chan <-
     }
 
     _ = xml.NewDecoder(r.Body).Decode(vdc)
+
+    for k,v := range vdc.VMs.VM {
+        u, _ := url.Parse(v.Href)
+        vdc.VMs.VM[k].Href = u.Path
+    }
 
     now := time.Now()
     report := &ReportDocument{

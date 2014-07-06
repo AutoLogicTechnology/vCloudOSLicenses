@@ -33,6 +33,8 @@ type WorkerJob struct {
 func (v *VCloudSession) ReportWorker (job *WorkerJob) {
     for _, link := range job.Organisation.Links {
         if link.Type == "application/vnd.vmware.vcloud.vdc+xml" {
+            log.Printf("Found VDC link: %s", link.Href)
+            
             vdc := &VDC{}
             vdc.Get(v, link)
 
@@ -98,6 +100,10 @@ func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report
 
     orgs, _ := FindOrganisations(v, max_organisations, max_pages)
     // orgs.GetAll(v, "references", max_organisations, max_pages)
+
+    for _, test := range orgs {
+        log.Printf("Organisation: %s", test.Name)
+    }
 
     for _, org := range orgs {
         job := &WorkerJob{

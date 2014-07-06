@@ -34,6 +34,8 @@ func (v *VDC) Get (session *VCloudSession, org *OrgLink) {
 
     _ = xml.NewDecoder(r.Body).Decode(v)
 
+    log.Printf("VDC Selfie: %+v", v)
+
     for k, val := range v.ResourceEntities {
         u, _ := url.Parse(val.Href)
         v.ResourceEntities[k].Href = u.Path

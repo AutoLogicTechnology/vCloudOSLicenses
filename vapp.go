@@ -36,6 +36,9 @@ type AdminVAppRecord struct {
 
 type VAppQueryResultsRecords struct {
     XMLName string `xml:"QueryResultRecords"`
+
+    // TotalVapps int `xml:"total,attr"`
+
     Records []*AdminVAppRecord `xml:"AdminVAppRecord"`
 }
 

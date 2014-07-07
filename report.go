@@ -97,6 +97,8 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 }
 
 func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
+    var recycled *VAppQueryResultsRecords = nil 
+
     for _, vapp := range job.VApps.Records {
 
         // log.Printf("vApp: %s", vapp.Href)
@@ -107,6 +109,13 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
         if err != nil {
             log.Printf("I think this vApp went away. Skipping: %s", vapp.Name)
+
+            if recycled == nil {
+                recycled = &VAppQueryResultsRecords{}
+            }
+
+            recycled.Records = append(recycled.Records, vapp)
+
             continue 
         }
 
@@ -122,6 +131,13 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
         if err != nil {
             log.Printf("I think this Org went away. Skipping: %s", vapp.Org)
+
+            if recycled == nil {
+                recycled = &VAppQueryResultsRecords{}
+            }
+
+            recycled.Records = append(recycled.Records, vapp)
+
             continue 
         }
 
@@ -161,6 +177,10 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
         job.ResultsChannel <- report
     }
 
+    if recycled != nil {
+        job.RecycleChannel <- recycled
+    }
+
     job.Waiter.Done() 
 }
 
@@ -176,7 +196,10 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     }
 
     waiter  := &sync.WaitGroup{}
+    
     results := make(chan *ReportDocument)
+    recycled := make(chan *VAppQueryResultsRecords)
+
     vapps, _ := v.FindVApps(max_vapps, max_pages)
 
     waiter.Add(len(vapps))
@@ -186,6 +209,7 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
             WorkerID:       worker_id,
             Waiter:         waiter,
             ResultsChannel: results,
+            RecycleChannel: recycled,
             VApps:          vapp,
         }
 
@@ -197,6 +221,14 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
         waiter.Wait()
         close(results)
     }()
+
+    for orphen := range recycled {
+        for vapp := range orphen.Records {
+            log.Printf("Found recycled vApps: %+v", orphen.Records)
+        }
+    }
+
+    close(recycled)
 
     for report := range results {
         reports = append(reports, report)

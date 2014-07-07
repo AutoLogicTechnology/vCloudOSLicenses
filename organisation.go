@@ -41,4 +41,6 @@ func (o *Organisation) Get (session *VCloudSession, org_url string) (err error) 
         u, _ := url.Parse(v.Href)
         o.Links[k].Href = u.Path
     }
+
+    return nil 
 }

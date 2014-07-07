@@ -118,7 +118,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
         org := &Organisation{}
         // log.Printf("About to get Org: %s", vapp.Org)
-        err := org.Get(v, vapp.Org)
+        err = org.Get(v, vapp.Org)
 
         if err != nil {
             log.Printf("I think this Org went away. Skipping: %s", vapp.Org)

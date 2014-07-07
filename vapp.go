@@ -19,7 +19,7 @@ type AdminVAppRecord struct {
     Status              string `xml:"status,attr"`
     OwnerName           string `xml:"ownerName,attr"`
     Org                 string `xml:"org,attr"`
-    NumberOfVMs         int    `xml:"numberOfVMs,attr"`
+    NumberOfVMs         uint   `xml:"numberOfVMs,attr"`
     Name                string `xml:"name,attr"`
     MemoryAllocationMB  string `xml:"memoryAllocationMB,attr"`
     IsExpired           string `xml:"isExpired,attr"`

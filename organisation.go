@@ -1,6 +1,11 @@
 
 package vcloudoslicenses 
 
+import (
+    "encoding/xml"
+    "net/url"
+)
+
 type OrgLink struct {
     XMLName     string `xml:"Link"`
 
@@ -20,8 +25,9 @@ type Organisation struct {
     Links       []*OrgLink `xml:"Link"`
 }
 
-func (o *Organisation) Get (session *VCloudSession, uri string) {
-    r, _ := session.Get(uri)
+func (o *Organisation) Get (session *VCloudSession, url string) {
+    uri, _ := url.Parse(url)
+    r, _ := session.Get(uri.Path)
     defer r.Body.Close()
 
     _ = xml.NewDecoder(r.Body).Decode(o)

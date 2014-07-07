@@ -112,7 +112,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
     for _, vapp := range job.VApps.Records {
         vdc := &VDCVApp{}
 
-        // log.Printf("I am %s, and I'm about to request: %s%s.", job.VApp.Name, v.Host, job.VApp.Href)
+        log.Printf("I am %s, and I'm about to request: %s%s.", job.VApp.Name, v.Host, job.VApp.Href)
 
         r := v.Get(vapp.Href)
         defer r.Body.Close()

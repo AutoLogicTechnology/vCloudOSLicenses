@@ -8,7 +8,7 @@ import (
     "strconv"
     "encoding/xml"
 
-    "log"
+    // "log"
 )
 
 type ReportTotal struct {
@@ -216,7 +216,7 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
 
     waiter  := &sync.WaitGroup{}
     results := make(chan *ReportDocument)
-    vapps, _ := v.FindVApps(max_organisations, max_pages)
+    vapps, _ := v.FindVApps(max_vapps, max_pages)
     // v.Counters.Orgs = len(orgs)
 
     waiter.Add(v.Counters.VApps)

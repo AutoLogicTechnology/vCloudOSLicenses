@@ -106,6 +106,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
         r, err := v.Get(vapp.Href)
 
         if err != nil {
+            log.Printf("I think this vApp went away. Skipping: %s", vapp.Name)
             continue 
         }
 

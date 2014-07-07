@@ -223,6 +223,10 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
         close(results)
     }()
 
+    for report := range results {
+        reports = append(reports, report)
+    }
+
     for orphen := range recycled {
         for _, vapp := range orphen.Records {
             log.Printf("Found recycled vApps: %+v", vapp.Name)
@@ -230,10 +234,6 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     }
 
     close(recycled)
-
-    for report := range results {
-        reports = append(reports, report)
-    }
   
     return reports 
 }

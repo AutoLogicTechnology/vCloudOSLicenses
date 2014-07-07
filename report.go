@@ -30,6 +30,7 @@ type WorkerJob struct {
     WorkerID        int 
     Waiter          *sync.WaitGroup
     ResultsChannel  chan <- *ReportDocument
+    RecycleChannel  chan <- *VAppQueryResultsRecords
     Organisation    *Organisation
     VApps           *VAppQueryResultsRecords
 }

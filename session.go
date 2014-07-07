@@ -53,7 +53,6 @@ func (v *VCloudSession) Login () {
 }
 
 func (v *VCloudSession) Get (uri string) (body *http.Response, err error) {
-    var err error 
     var response *http.Response 
 
     if v.Accessible {

@@ -35,7 +35,12 @@ func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*VAppQ
         vapp := &VAppQueryResultsRecords{}
         uri := fmt.Sprintf("/api/query?type=adminVApp&pageSize=%v&page=%v", max_page_size, i)
 
-        r := v.Get(uri)
+        r, err := v.Get(uri)
+
+        if err != nil {
+            continue 
+        }
+
         defer r.Body.Close()
 
         if r.StatusCode == 400 {
@@ -68,7 +73,12 @@ func (v *VCloudSession) FindOrganisations (max_page_size, max_pages int) (Orgs [
     for i := 1; i <= max_pages; i++ {
     	page := &OrgReferences{}
         uri := fmt.Sprintf("/api/query?type=organization&format=references&pageSize=%v&page=%v", max_page_size, i)
-        r := v.Get(uri)
+        r, err := v.Get(uri)
+
+        if err != nil {
+            continue 
+        }
+
         defer r.Body.Close()
 
         if r.StatusCode == 400 {
@@ -79,7 +89,12 @@ func (v *VCloudSession) FindOrganisations (max_page_size, max_pages int) (Orgs [
      
         for _, record := range page.Records {
             u, _ := url.Parse(record.Href)
-            r := v.Get(u.Path)
+            r, err := v.Get(u.Path)
+
+            if err != nil {
+                continue 
+            }
+
             defer r.Body.Close()
 
             if r.StatusCode != 200 {

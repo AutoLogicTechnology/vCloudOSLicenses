@@ -85,13 +85,8 @@ type VDCVApp struct {
     VMs         VAppChildren `xml:"Children"`
 }
 
-func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) (err error) {
-    r, err := session.Get(vdc.Href)
-
-    if err != nil {
-        return errors.New("VDC not found. Ignoring: %s", vdc.Href)
-    }
-
+func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
+    r, _ := session.Get(vdc.Href)
     defer r.Body.Close()
 
     _ = xml.NewDecoder(r.Body).Decode(a)

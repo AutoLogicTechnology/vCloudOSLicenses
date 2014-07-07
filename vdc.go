@@ -32,7 +32,7 @@ type VDC struct {
 }
 
 func (v *VDC) Get (session *VCloudSession, org *OrgLink) {
-    r := session.Get(org.Href)
+    r, _ := session.Get(org.Href)
     defer r.Body.Close()
 
     _ = xml.NewDecoder(r.Body).Decode(v)

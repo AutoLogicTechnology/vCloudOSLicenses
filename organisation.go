@@ -25,9 +25,14 @@ type Organisation struct {
     Links       []*OrgLink `xml:"Link"`
 }
 
-func (o *Organisation) Get (session *VCloudSession, org_url string) {
+func (o *Organisation) Get (session *VCloudSession, org_url string) (err error) {
     uri, _ := url.Parse(org_url)
-    r, _ := session.Get(uri.Path)
+    r, err := session.Get(uri.Path)
+
+    if err != nil {
+        return err 
+    }
+
     defer r.Body.Close()
 
     _ = xml.NewDecoder(r.Body).Decode(o)

@@ -115,7 +115,11 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
         log.Printf("I am %d, and I'm about to request: %s%s.", job.WorkerID, v.Host, vapp.Href)
 
-        r := v.Get(vapp.Href)
+        r, err := v.Get(vapp.Href)
+        if err != nil {
+            continue 
+        }
+
         defer r.Body.Close()
 
         _ = xml.NewDecoder(r.Body).Decode(vdc)

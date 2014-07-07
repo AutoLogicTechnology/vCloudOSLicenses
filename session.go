@@ -7,6 +7,7 @@ import (
     "log"
     "fmt"
     "encoding/base64"
+    "errors"
 )
 
 type SessionCounter struct {
@@ -51,7 +52,7 @@ func (v *VCloudSession) Login () {
     v.Accessible    = true
 }
 
-func (v *VCloudSession) Get (uri string) (body *http.Response) {
+func (v *VCloudSession) Get (uri string) (body *http.Response, err error) {
     var err error 
     var response *http.Response 
 
@@ -68,13 +69,14 @@ func (v *VCloudSession) Get (uri string) (body *http.Response) {
         response, err = client.Do(request)
 
         if err != nil {
-            log.Fatalf("Call to %s failed: %v. ", uri, err)
+            // log.Fatalf("Call to %s failed: %v. ", uri, err)
             // log.Printf("Call to %s was a problem. Ignoring. (%v)", uri, err)
+            return &http.Response{}, errors.New(fmt.Sprintf("Call to %s was a problem. Ignoring. (%v)", uri, err))
         }
 
     } else {
         log.Fatal("NewRequest() called, but no accessible session available.")
     }
 
-    return response
+    return response, nil 
 }

@@ -4,6 +4,7 @@ package vcloudoslicenses
 import (
     "encoding/xml"
     "net/url"
+    "errors"
 )
 
 // QueryResultsRecords stuff below.
@@ -84,8 +85,13 @@ type VDCVApp struct {
     VMs         VAppChildren `xml:"Children"`
 }
 
-func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) {
-    r := session.Get(vdc.Href)
+func (a *VDCVApp) Get (session *VCloudSession, vdc *VdcResourceEntity) (err error) {
+    r, err := session.Get(vdc.Href)
+
+    if err != nil {
+        return errors.New("VDC not found. Ignoring: %s", vdc.Href)
+    }
+
     defer r.Body.Close()
 
     _ = xml.NewDecoder(r.Body).Decode(a)

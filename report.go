@@ -11,11 +11,11 @@ import (
     "log"
 )
 
-type ReportTotal struct {
-    VDCs            uint 
-    VApps           uint 
-    VMs             uint
-}
+// type ReportTotal struct {
+//     VDCs            uint 
+//     VApps           uint 
+//     VMs             uint
+// }
 
 type ReportDocument struct {
     Timestamp       string 
@@ -30,8 +30,9 @@ type ReportDocument struct {
     CentOS          uint 
     Ubuntu          uint 
     Unknown         uint
+    TotalVMs        uint
 
-    Totals          ReportTotal
+    // Totals          ReportTotal
 }
 
 type WorkerJob struct {
@@ -124,20 +125,23 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
         _ = xml.NewDecoder(r.Body).Decode(vdc)
 
+        v.Counters.VApps++
+
         now := time.Now()
         report := &ReportDocument{
             Timestamp:      now.String(),
             Year:           strconv.Itoa(now.Year()),
             Month:          now.Month().String(),
             Day:            strconv.Itoa(now.Day()),
-            Organisation:   vapp.Org,
-            VDC:            vapp.VDC,
+            Organisation:   vapp.OwnerName,
+            VDC:            vapp.VDCName,
             VApp:           vapp.Name,
             MSWindows:      0,
             RHEL:           0,
             CentOS:         0,
             Ubuntu:         0,
             Unknown:        0,
+            TotalVMs:       vapp.NumberOfVMs,
         }
 
         for _, vm := range vdc.VMs.VM {

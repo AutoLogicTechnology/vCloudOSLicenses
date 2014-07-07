@@ -8,7 +8,7 @@ import (
     "strconv"
     "encoding/xml"
 
-    // "log"
+    "log"
 )
 
 type ReportTotal struct {

@@ -4,7 +4,6 @@ package vcloudoslicenses
 import (
     "encoding/xml"
     "net/url"
-    "errors"
 )
 
 // QueryResultsRecords stuff below.

@@ -30,7 +30,6 @@ type WorkerJob struct {
     WorkerID        int 
     Waiter          *sync.WaitGroup
     ResultsChannel  chan <- *ReportDocument
-    // RecycleChannel  chan <- *VAppQueryResultsRecords
     Organisation    *Organisation
     VApps           *VAppQueryResultsRecords
 }
@@ -98,7 +97,6 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 }
 
 func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
-    // var recycled *VAppQueryResultsRecords = nil 
 
     for _, vapp := range job.VApps.Records {
         vdc := &VDCVApp{}
@@ -106,14 +104,6 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
         r, err := v.Get(vapp.Href)
 
         if err != nil {
-            // if recycled == nil {
-            //     log.Print("Creating new recycled bin...")
-            //     recycled = &VAppQueryResultsRecords{}
-            // }
-
-            // log.Printf("Adding vApp to recycle bin: vapp not found? %s", vapp.Href)
-            // recycled.Records = append(recycled.Records, vapp)
-
             log.Printf("vApp Missing: %s", vapp.Name)
             continue 
         }
@@ -122,22 +112,14 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
         _ = xml.NewDecoder(r.Body).Decode(vdc)
 
-        v.Counters.VApps++
-
         org := &Organisation{}
         err = org.Get(v, vapp.Org)
         if err != nil {
-            // if recycled == nil {
-            //     log.Print("Creating new recycled bin...")
-            //     recycled = &VAppQueryResultsRecords{}
-            // }
-
-            // log.Printf("Adding vApp to recycle bin: org not found? %s", vapp.Org)
-            // recycled.Records = append(recycled.Records, vapp)
-
             log.Printf("Org Missing: %s", vapp.Org)
             continue 
         }
+
+        v.Counters.VApps++
 
         now := time.Now()
         report := &ReportDocument{
@@ -174,16 +156,10 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
         job.ResultsChannel <- report
     }
-
-    // if recycled != nil {
-    //     log.Print("Passing recycle into recycle channel...")
-    //     job.RecycleChannel <- recycled
-    // }
-
     job.Waiter.Done() 
 }
 
-func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*ReportDocument) {
+func (v *VCloudSession) VAppReport (max_vapps, max_pages, page_number int) (reports []*ReportDocument) {
     var worker_id int = 1
     
     if max_vapps <= 0 {
@@ -195,11 +171,8 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     }
 
     waiter  := &sync.WaitGroup{}
-    
     results := make(chan *ReportDocument)
-    // recycled := make(chan *VAppQueryResultsRecords)
-
-    vapps, _ := v.FindVApps(max_vapps, max_pages)
+    vapps, _ := v.FindVApps(max_vapps, max_pages, page_number)
 
     waiter.Add(len(vapps))
 
@@ -208,7 +181,6 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
             WorkerID:       worker_id,
             Waiter:         waiter,
             ResultsChannel: results,
-            // RecycleChannel: recycled,
             VApps:          vapp,
         }
 
@@ -219,20 +191,12 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     go func() {
         waiter.Wait()
         close(results)
-        // close(recycled)
     }()
 
     for report := range results {
         reports = append(reports, report)
     }
-
-    // log.Print("Going over recycle bin...")
-    // for orphen := range recycled {
-    //     for _, vapp := range orphen.Records {
-    //         log.Printf("Found recycled vApps: %+v", vapp.Name)
-    //     }
-    // }
-  
+ 
     return reports 
 }
 

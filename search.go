@@ -21,7 +21,7 @@ type OrgReferences struct {
     Records     []*OrgReference `xml:"OrgReference"`
 }
 
-func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*VAppQueryResultsRecords, err error) {
+func (v *VCloudSession) FindVApps (max_page_size, max_pages, page_number int) (VApps []*VAppQueryResultsRecords, err error) {
 
     if max_page_size <= 0 {
         max_page_size = 1
@@ -33,7 +33,6 @@ func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*VAppQ
 
     for i := 1; i <= max_pages; i++ {
         vapp := &VAppQueryResultsRecords{}
-        uri := fmt.Sprintf("/api/query?type=adminVApp&pageSize=%v&page=%v", max_page_size, i)
 
         r, err := v.Get(uri)
 

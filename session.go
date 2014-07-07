@@ -65,7 +65,7 @@ func (v *VCloudSession) Get (uri string) (body *http.Response, err error) {
         client := &http.Client{Transport: v.Transport}
         response, err = client.Do(request)
 
-        if err != nil {
+        if err != nil || response.StatusCode != 200 {
             return &http.Response{}, errors.New(fmt.Sprintf("Call to %s was a problem. Ignoring. (%v)", uri, err))
         }
 

@@ -19,3 +19,15 @@ type Organisation struct {
 
     Links       []*OrgLink `xml:"Link"`
 }
+
+func (o *Organisation) Get (session *VCloudSession, uri string) {
+    r, _ := session.Get(uri)
+    defer r.Body.Close()
+
+    _ = xml.NewDecoder(r.Body).Decode(o)
+
+    for k, v := range o.Links {
+        u, _ := url.Parse(v.Href)
+        o.Links[k].Href = u.Path
+    }
+}

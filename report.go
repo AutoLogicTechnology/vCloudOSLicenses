@@ -7,15 +7,7 @@ import (
     "time"
     "strconv"
     "encoding/xml"
-
-    // "log"
 )
-
-// type ReportTotal struct {
-//     VDCs            uint 
-//     VApps           uint 
-//     VMs             uint
-// }
 
 type ReportDocument struct {
     Timestamp       string 
@@ -31,8 +23,6 @@ type ReportDocument struct {
     Ubuntu          uint 
     Unknown         uint
     TotalVMs        uint
-
-    // Totals          ReportTotal
 }
 
 type WorkerJob struct {
@@ -106,15 +96,8 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 }
 
 func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
-
-    // if job.VApp.Href == "/api/vApp/vapp-918f87d0-5c7c-4b15-b30f-583692623f36" {
-    //     log.Printf("Here I am! %s", job.VApp.Name)
-    // }
-
     for _, vapp := range job.VApps.Records {
         vdc := &VDCVApp{}
-
-        // log.Printf("I am %d, and I'm about to request: %s%s.", job.WorkerID, v.Host, vapp.Href)
 
         r, err := v.Get(vapp.Href)
         if err != nil {
@@ -127,13 +110,16 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
         v.Counters.VApps++
 
+        org := &Organisation{}
+        org.Get(v, vapp.Org)
+
         now := time.Now()
         report := &ReportDocument{
             Timestamp:      now.String(),
             Year:           strconv.Itoa(now.Year()),
             Month:          now.Month().String(),
             Day:            strconv.Itoa(now.Day()),
-            Organisation:   vapp.OwnerName,
+            Organisation:   org.Name,
             VDC:            vapp.VDCName,
             VApp:           vapp.Name,
             MSWindows:      0,
@@ -166,65 +152,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
     job.Waiter.Done() 
 }
 
-// func (v *VCloudSession) VAppReportWorker (jobs <- chan *VAppWorkerJob) {
-
-//     for job := range jobs {
-//         log.Printf("Job: %+v", job)
-
-//         vdc := &VDCVApp{}
-
-//         r := v.Get(job.VApp.Href)
-//         defer r.Body.Close()
-
-//         if r.StatusCode != 200 {
-//             continue 
-//         }
-
-//         _ = xml.NewDecoder(r.Body).Decode(vdc)
-
-//         now := time.Now()
-//         report := &ReportDocument{
-//             Timestamp:      now.String(),
-//             Year:           strconv.Itoa(now.Year()),
-//             Month:          now.Month().String(),
-//             Day:            strconv.Itoa(now.Day()),
-//             Organisation:   job.VApp.OwnerName,
-//             VDC:            job.VApp.VDCName,
-//             VApp:           job.VApp.Name,
-//             MSWindows:      0,
-//             RHEL:           0,
-//             CentOS:         0,
-//             Ubuntu:         0,
-//             Unknown:        0,
-//         }
- 
-//         for _, vm := range vdc.VMs.VM {
-//             v.Counters.VMs++
-
-//             if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
-//                 report.MSWindows++
-//             } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
-//                 report.RHEL++
-//             } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
-//                 report.CentOS++
-//             } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
-//                 report.Ubuntu++
-//             } else {
-//                 report.Unknown++
-//             }
-//         }
-
-//         log.Printf("Report: %+v", report)
-
-//         job.ResultsChannel <- report
-//     }
-
-//     log.Print("Worker finished...")
-// }
-
 func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*ReportDocument) {
-    // var reports []*ReportDocument
-
     var worker_id int = 1
     
     if max_vapps <= 0 {
@@ -238,7 +166,6 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     waiter  := &sync.WaitGroup{}
     results := make(chan *ReportDocument)
     vapps, _ := v.FindVApps(max_vapps, max_pages)
-    // v.Counters.Orgs = len(orgs)
 
     waiter.Add(len(vapps))
 
@@ -265,59 +192,6 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
   
     return reports 
 }
-
-// func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*ReportDocument) {
-//     vapps, _ := v.FindVApps(max_vapps, max_pages)
-//     for _, vapp := range vapps {
-//         vdc := &VDCVApp{}
-
-//         r := v.Get(vapp.Href)
-//         defer r.Body.Close()
-
-//         if r.StatusCode != 200 {
-//             continue 
-//         }
-
-//         _ = xml.NewDecoder(r.Body).Decode(vdc)
-
-//         now := time.Now()
-//         report := &ReportDocument{
-//             Timestamp:      now.String(),
-//             Year:           strconv.Itoa(now.Year()),
-//             Month:          now.Month().String(),
-//             Day:            strconv.Itoa(now.Day()),
-//             Organisation:   vapp.OwnerName,
-//             VDC:            vapp.VDCName,
-//             VApp:           vapp.Name,
-//             MSWindows:      0,
-//             RHEL:           0,
-//             CentOS:         0,
-//             Ubuntu:         0,
-//             Unknown:        0,
-//         }
- 
-//         for _, vm := range vdc.VMs.VM {
-//             v.Counters.VMs++
-
-//             if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
-//                 report.MSWindows++
-//             } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
-//                 report.RHEL++
-//             } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
-//                 report.CentOS++
-//             } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
-//                 report.Ubuntu++
-//             } else {
-//                 report.Unknown++
-//             }
-//         }
-
-//         log.Printf("Report: %+v", report) 
-//         reports = append(reports, report)
-//     }
-  
-//     return reports 
-// }
 
 func (v *VCloudSession) LicenseReport (max_organisations, max_pages int) (report []*ReportDocument) {
     var reports []*ReportDocument

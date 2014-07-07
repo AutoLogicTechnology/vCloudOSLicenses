@@ -116,7 +116,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
         v.Counters.VApps++
 
         org := &Organisation{}
-        log.Printf("About to get Org: vapp.Org")
+        log.Printf("About to get Org: %s", vapp.Org)
         org.Get(v, vapp.Org)
 
         now := time.Now()

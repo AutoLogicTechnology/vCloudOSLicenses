@@ -35,6 +35,7 @@ type ReportDocument struct {
 }
 
 type WorkerJob struct {
+    WorkerID        int 
     Waiter          *sync.WaitGroup
     ResultsChannel  chan <- *ReportDocument
     Organisation    *Organisation
@@ -112,7 +113,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
     for _, vapp := range job.VApps.Records {
         vdc := &VDCVApp{}
 
-        log.Printf("I am %s, and I'm about to request: %s%s.", vapp.Name, v.Host, vapp.Href)
+        log.Printf("I am %d, and I'm about to request: %s%s.", job.WorkerID, v.Host, vapp.Href)
 
         r := v.Get(vapp.Href)
         defer r.Body.Close()
@@ -215,6 +216,8 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
 func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*ReportDocument) {
     // var reports []*ReportDocument
+
+    var worker_id int = 1
     
     if max_vapps <= 0 {
         max_vapps = 10
@@ -233,12 +236,14 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
 
     for _, vapp := range vapps {
         job := &WorkerJob{
+            WorkerID:       worker_id,
             Waiter:         waiter,
             ResultsChannel: results,
             VApps:          vapp,
         }
 
         go v.VAppReportWorker(job)
+        worker_id++
     }
 
     go func() {

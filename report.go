@@ -101,21 +101,17 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
     var recycled *VAppQueryResultsRecords = nil 
 
     for _, vapp := range job.VApps.Records {
-
-        // log.Printf("vApp: %s", vapp.Href)
-
         vdc := &VDCVApp{}
 
         r, err := v.Get(vapp.Href)
 
         if err != nil {
-            log.Printf("I think this vApp went away. Skipping: %s", vapp.Href)
-
             if recycled == nil {
                 log.Print("Creating new recycled bin...")
                 recycled = &VAppQueryResultsRecords{}
             }
 
+            log.Printf("Adding vApp to recycle bin: vapp not found? %s", vapp.Href)
             recycled.Records = append(recycled.Records, vapp)
 
             continue 
@@ -128,18 +124,14 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
         v.Counters.VApps++
 
         org := &Organisation{}
-        // log.Printf("About to get Org: %s", vapp.Org)
         err = org.Get(v, vapp.Org)
-
         if err != nil {
-            log.Printf("I think this Org went away. Skipping: %s", vapp.Org)
-
             if recycled == nil {
                 log.Print("Creating new recycled bin...")
                 recycled = &VAppQueryResultsRecords{}
             }
 
-            log.Print("Adding vApp to recycle bin...")
+            log.Printf("Adding vApp to recycle bin: org not found? %s", vapp.Org)
             recycled.Records = append(recycled.Records, vapp)
 
             continue 
@@ -182,6 +174,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
     }
 
     if recycled != nil {
+        log.Print("Passing recycle into recycle channel...")
         job.RecycleChannel <- recycled
     }
 
@@ -224,13 +217,14 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     go func() {
         waiter.Wait()
         close(results)
+        close(recycled)
     }()
 
     for report := range results {
         reports = append(reports, report)
     }
 
-    close(recycled)
+    log.Print("Going over recycle bin...")
     for orphen := range recycled {
         for _, vapp := range orphen.Records {
             log.Printf("Found recycled vApps: %+v", vapp.Name)

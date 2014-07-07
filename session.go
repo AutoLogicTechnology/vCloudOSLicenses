@@ -56,7 +56,11 @@ func (v *VCloudSession) Get (uri string) (body *http.Response) {
     var response *http.Response 
 
     if v.Accessible {
-        request, _ := http.NewRequest("GET", fmt.Sprintf("%s%s", v.Host, uri), nil)
+        url := fmt.Sprintf("%s%s", v.Host, uri)
+
+        log.Printf("URL being requested: %s", url)
+
+        request, _ := http.NewRequest("GET", url, nil)
         request.Header.Add("x-vcloud-authorization", v.Token)
         request.Header.Add("Accept", "application/*+xml;version=5.1")
 
@@ -64,8 +68,8 @@ func (v *VCloudSession) Get (uri string) (body *http.Response) {
         response, err = client.Do(request)
 
         if err != nil {
-            // log.Fatal(fmt.Sprintf("Call to %s failed: %v", uri, err))
-            log.Printf("Call to %s was a problem. Ignoring. (%v)", uri, err)
+            log.Fatalf("Call to %s failed: %v", uri, err)
+            // log.Printf("Call to %s was a problem. Ignoring. (%v)", uri, err)
         }
 
     } else {

@@ -21,7 +21,7 @@ type OrgReferences struct {
     Records     []*OrgReference `xml:"OrgReference"`
 }
 
-func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*AdminVAppRecord, err error) {
+func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*VAppQueryResultsRecords, err error) {
 
     if max_page_size <= 0 {
         max_page_size = 1
@@ -46,10 +46,10 @@ func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*Admin
         for k,record := range vapp.Records {
             u, _ := url.Parse(record.Href)
             vapp.Records[k].Href = u.Path
-
-            VApps = append(VApps, record)
             v.Counters.VApps++
         }
+
+        VApps = append(VApps, vapp)
     }
 
     return VApps, nil 

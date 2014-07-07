@@ -38,7 +38,7 @@ type WorkerJob struct {
     Waiter          *sync.WaitGroup
     ResultsChannel  chan <- *ReportDocument
     Organisation    *Organisation
-    VApp            *AdminVAppRecord
+    VApps           *VAppQueryResultsRecords
 }
 
 type VAppWorkerJob struct {
@@ -105,52 +105,55 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 
 func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
 
-    if job.VApp.Href == "/api/vApp/vapp-918f87d0-5c7c-4b15-b30f-583692623f36" {
-        log.Printf("Here I am! %s", job.VApp.Name)
-    }
+    // if job.VApp.Href == "/api/vApp/vapp-918f87d0-5c7c-4b15-b30f-583692623f36" {
+    //     log.Printf("Here I am! %s", job.VApp.Name)
+    // }
 
-    vdc := &VDCVApp{}
+    for _, vapp := range job.VApps.Records {
+        vdc := &VDCVApp{}
 
-    log.Printf("I am %s, and I'm about to request: %s%s.", job.VApp.Name, v.Host, job.VApp.Href)
+        // log.Printf("I am %s, and I'm about to request: %s%s.", job.VApp.Name, v.Host, job.VApp.Href)
 
-    r := v.Get(job.VApp.Href)
-    defer r.Body.Close()
+        r := v.Get(vapp.Href)
+        defer r.Body.Close()
 
-    _ = xml.NewDecoder(r.Body).Decode(vdc)
+        _ = xml.NewDecoder(r.Body).Decode(vdc)
 
-    now := time.Now()
-    report := &ReportDocument{
-        Timestamp:      now.String(),
-        Year:           strconv.Itoa(now.Year()),
-        Month:          now.Month().String(),
-        Day:            strconv.Itoa(now.Day()),
-        Organisation:   job.VApp.Org,
-        VDC:            job.VApp.VDC,
-        VApp:           job.VApp.Name,
-        MSWindows:      0,
-        RHEL:           0,
-        CentOS:         0,
-        Ubuntu:         0,
-        Unknown:        0,
-    }
-
-    for _, vm := range vdc.VMs.VM {
-        v.Counters.VMs++
-
-        if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
-            report.MSWindows++
-        } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
-            report.RHEL++
-        } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
-            report.CentOS++
-        } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
-            report.Ubuntu++
-        } else {
-            report.Unknown++
+        now := time.Now()
+        report := &ReportDocument{
+            Timestamp:      now.String(),
+            Year:           strconv.Itoa(now.Year()),
+            Month:          now.Month().String(),
+            Day:            strconv.Itoa(now.Day()),
+            Organisation:   vapp.Org,
+            VDC:            vapp.VDC,
+            VApp:           vapp.Name,
+            MSWindows:      0,
+            RHEL:           0,
+            CentOS:         0,
+            Ubuntu:         0,
+            Unknown:        0,
         }
+
+        for _, vm := range vdc.VMs.VM {
+            v.Counters.VMs++
+
+            if strings.Contains(vm.OperatingSystemSection.OSType, "windows") {
+                report.MSWindows++
+            } else if strings.Contains(vm.OperatingSystemSection.OSType, "rhel") {
+                report.RHEL++
+            } else if strings.Contains(vm.OperatingSystemSection.OSType, "centos") {
+                report.CentOS++
+            } else if strings.Contains(vm.OperatingSystemSection.OSType, "ubuntu") {
+                report.Ubuntu++
+            } else {
+                report.Unknown++
+            }
+        }
+
+        job.ResultsChannel <- report
     }
 
-    job.ResultsChannel <- report
     job.Waiter.Done() 
 }
 
@@ -226,13 +229,13 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
     vapps, _ := v.FindVApps(max_vapps, max_pages)
     // v.Counters.Orgs = len(orgs)
 
-    waiter.Add(v.Counters.VApps)
+    waiter.Add(len(vapps))
 
     for _, vapp := range vapps {
         job := &WorkerJob{
             Waiter:         waiter,
             ResultsChannel: results,
-            VApp:           vapp,
+            VApps:          vapp,
         }
 
         go v.VAppReportWorker(job)

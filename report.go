@@ -8,7 +8,7 @@ import (
     "strconv"
     "encoding/xml"
 
-    "log"
+    // "log"
 )
 
 // type ReportTotal struct {
@@ -114,7 +114,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
     for _, vapp := range job.VApps.Records {
         vdc := &VDCVApp{}
 
-        log.Printf("I am %d, and I'm about to request: %s%s.", job.WorkerID, v.Host, vapp.Href)
+        // log.Printf("I am %d, and I'm about to request: %s%s.", job.WorkerID, v.Host, vapp.Href)
 
         r, err := v.Get(vapp.Href)
         if err != nil {

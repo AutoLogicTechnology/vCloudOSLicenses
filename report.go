@@ -99,11 +99,12 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
     for _, vapp := range job.VApps.Records {
 
-        log.Printf("vApp: %s", vapp.Href)
+        // log.Printf("vApp: %s", vapp.Href)
 
         vdc := &VDCVApp{}
 
         r, err := v.Get(vapp.Href)
+
         if err != nil {
             continue 
         }
@@ -115,6 +116,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
         v.Counters.VApps++
 
         org := &Organisation{}
+        log.Printf("About to get Org: vapp.Org")
         org.Get(v, vapp.Org)
 
         now := time.Now()

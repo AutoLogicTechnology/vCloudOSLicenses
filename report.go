@@ -109,9 +109,10 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
         r, err := v.Get(vapp.Href)
 
         if err != nil {
-            log.Printf("I think this vApp went away. Skipping: %s", vapp.Name)
+            log.Printf("I think this vApp went away. Skipping: %s", vapp.Href)
 
             if recycled == nil {
+                log.Print("Creating new recycled bin...")
                 recycled = &VAppQueryResultsRecords{}
             }
 
@@ -134,9 +135,11 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
             log.Printf("I think this Org went away. Skipping: %s", vapp.Org)
 
             if recycled == nil {
+                log.Print("Creating new recycled bin...")
                 recycled = &VAppQueryResultsRecords{}
             }
 
+            log.Print("Adding vApp to recycle bin...")
             recycled.Records = append(recycled.Records, vapp)
 
             continue 
@@ -227,13 +230,12 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
         reports = append(reports, report)
     }
 
+    close(recycled)
     for orphen := range recycled {
         for _, vapp := range orphen.Records {
             log.Printf("Found recycled vApps: %+v", vapp.Name)
         }
     }
-
-    close(recycled)
   
     return reports 
 }

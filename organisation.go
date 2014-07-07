@@ -25,8 +25,8 @@ type Organisation struct {
     Links       []*OrgLink `xml:"Link"`
 }
 
-func (o *Organisation) Get (session *VCloudSession, url string) {
-    uri, _ := url.Parse(url)
+func (o *Organisation) Get (session *VCloudSession, org_url string) {
+    uri, _ := url.Parse(org_url)
     r, _ := session.Get(uri.Path)
     defer r.Body.Close()
 

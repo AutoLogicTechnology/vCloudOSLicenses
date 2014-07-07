@@ -104,6 +104,11 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 }
 
 func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
+
+    if job.VApp.Href == "/api/vApp/vapp-918f87d0-5c7c-4b15-b30f-583692623f36" {
+        log.Printf("Here I am! %s", job.VApp.Name)
+    }
+
     vdc := &VDCVApp{}
 
     log.Printf("I am %s, and I'm about to request: %s%s.", job.VApp.Name, v.Host, job.VApp.Href)

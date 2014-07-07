@@ -106,6 +106,8 @@ func (v *VCloudSession) ReportWorker (job *WorkerJob) {
 func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
     vdc := &VDCVApp{}
 
+    log.Printf("I am %s, and I'm about to request: %s%s.", job.VApp.Name, v.Host, job.VApp.Href)
+
     r := v.Get(job.VApp.Href)
     defer r.Body.Close()
 

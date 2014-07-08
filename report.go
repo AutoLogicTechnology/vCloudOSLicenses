@@ -11,19 +11,19 @@ import (
 )
 
 type ReportDocument struct {
-    Timestamp       string 
-    Year            string 
-    Month           string 
-    Day             string 
-    Organisation    string
-    VDC             string 
-    VApp            string
-    MSWindows       uint 
-    RHEL            uint 
-    CentOS          uint 
-    Ubuntu          uint 
-    Unknown         uint
-    TotalVMs        uint
+    Timestamp       string  `json:"timestamp"`
+    Year            string  `json:"year"`
+    Month           string  `json:"month"`
+    Day             string  `json:"day"`
+    Organisation    string  `json:"organisation"`
+    VDC             string  `json:"vdc"`
+    VApp            string  `json:"vapp"`
+    MSWindows       uint    `json:"mswindows"`
+    RHEL            uint    `json:"rhel"`
+    CentOS          uint    `json:"centos"`
+    Ubuntu          uint    `json:"ubuntu"`
+    Unknown         uint    `json:"unknown"`
+    TotalVMs        uint    `json:"totalvms"`
 }
 
 type WorkerJob struct {

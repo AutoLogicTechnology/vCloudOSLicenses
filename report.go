@@ -159,7 +159,7 @@ func (v *VCloudSession) VAppReportWorker (job *WorkerJob) {
     job.Waiter.Done() 
 }
 
-func (v *VCloudSession) VAppReport (max_vapps, max_pages, page_number int) (reports []*ReportDocument) {
+func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*ReportDocument) {
     var worker_id int = 1
     
     if max_vapps <= 0 {

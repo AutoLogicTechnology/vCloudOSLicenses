@@ -21,7 +21,7 @@ type OrgReferences struct {
     Records     []*OrgReference `xml:"OrgReference"`
 }
 
-func (v *VCloudSession) FindVApps (max_page_size, max_pages, page_number int) (VApps []*VAppQueryResultsRecords, err error) {
+func (v *VCloudSession) FindVApps (max_page_size, max_pages int) (VApps []*VAppQueryResultsRecords, err error) {
 
     if max_page_size <= 0 {
         max_page_size = 1

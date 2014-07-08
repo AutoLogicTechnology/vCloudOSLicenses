@@ -172,7 +172,7 @@ func (v *VCloudSession) VAppReport (max_vapps, max_pages int) (reports []*Report
 
     waiter  := &sync.WaitGroup{}
     results := make(chan *ReportDocument)
-    vapps, _ := v.FindVApps(max_vapps, max_pages, page_number)
+    vapps, _ := v.FindVApps(max_vapps, max_pages)
 
     waiter.Add(len(vapps))
 

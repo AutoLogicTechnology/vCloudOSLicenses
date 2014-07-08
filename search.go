@@ -33,7 +33,7 @@ func (v *VCloudSession) FindVApps (max_page_size, max_pages, page_number int) (V
 
     for i := 1; i <= max_pages; i++ {
         vapp := &VAppQueryResultsRecords{}
-
+        uri := fmt.Sprintf("/api/query?type=adminVApp&pageSize=%v&page=%v", max_page_size, i)
         r, err := v.Get(uri)
 
         if err != nil {
